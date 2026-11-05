@@ -2198,6 +2198,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.82); cursor: pointer; user-select: none;">Versão sincronizada</div>
         </div>
       </section>
     </div>
@@ -6904,6 +6905,10 @@
           if (res.ok) {
             return res.json().catch(function () { return { sucesso: true }; }).then(function (d) {
               marcarCopia();
+              const infoVer = $('infoVersaoApp');
+              if (infoVer && d && d.versao) {
+                infoVer.textContent = 'Versão ' + d.versao + (d.nuvem ? ' · Sincronizado na nuvem' : ' · Gravado no PC');
+              }
               if (d && d.nuvem) {
                 avisar('Compilação ' + (d.versao || '') + ' gravada e enviada para a nuvem com sucesso!');
               } else if (d && d.erroNuvem) {
@@ -7043,6 +7048,7 @@
     }
 
     function verificarCopiaPadrao() {
+      checarAtualizacaoRemota(false);
       if (window.TABELAS_PADRAO && window.TABELAS_PADRAO.app === 'okada-pedidos') {
         const obj = window.TABELAS_PADRAO;
         const ver = String(obj.criado || '1');
@@ -7083,25 +7089,54 @@
           }).catch(function () { return tentar(i + 1); });
         }).catch(function () { return tentar(i + 1); });
       }
-      return tentar(0).then(function () {
-        checarAtualizacaoRemota();
-      });
+      return tentar(0);
     }
-    function checarAtualizacaoRemota() {
+    function checarAtualizacaoRemota(manual) {
+      const infoVer = $('infoVersaoApp');
+      try {
+        const recem = sessionStorage.getItem('okada_recem_atualizado');
+        if (recem) {
+          sessionStorage.removeItem('okada_recem_atualizado');
+          setTimeout(function () {
+            avisar('Aplicativo atualizado automaticamente para ' + recem + '!');
+          }, 500);
+        }
+      } catch (e) {}
+
+      if (manual && infoVer) {
+        infoVer.textContent = 'Verificando atualização na nuvem...';
+      }
       fetch('/api/checar_atualizacao', { cache: 'no-store' }).then(function (res) {
         if (!res.ok) return null;
         return res.json();
       }).then(function (d) {
+        if (d && d.versao && infoVer) {
+          infoVer.textContent = 'Versão ' + d.versao + (d.motivo === 'pc_principal' ? ' · PC Principal' : ' · Atualizado');
+        }
         if (d && d.atualizado) {
-          avisar('Nova atualização (' + (d.versao || 'nova versão') + ') recebida! Atualizando...');
+          try { sessionStorage.setItem('okada_recem_atualizado', d.versao || 'nova versão'); } catch (e) {}
+          avisar('Nova atualização (' + (d.versao || 'nova versão') + ') encontrada! Atualizando...');
           const limpar = (window.caches && caches.keys)
             ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
             : Promise.resolve();
           limpar.then(function () {
             setTimeout(function () { location.reload(); }, 1200);
           });
+        } else if (manual) {
+          avisar('O aplicativo já está na versão mais recente (' + ((d && d.versao) || 'atual') + ').');
         }
-      }).catch(function () {});
+      }).catch(function () {
+        if (infoVer) {
+          fetch('sw.js', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
+            const m = t && t.match(/okada-v(\d+)/);
+            if (m) infoVer.textContent = 'Versão okada-v' + m[1];
+          }).catch(function () {});
+        }
+      });
+    }
+    const btInfoVersao = $('infoVersaoApp');
+    if (btInfoVersao) {
+      btInfoVersao.addEventListener('click', function () { checarAtualizacaoRemota(true); });
     }
     $('cadSalvarCopia').addEventListener('click', salvarCopia);
     $('cadCompilar').addEventListener('click', compilarPacote);

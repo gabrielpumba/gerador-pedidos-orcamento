@@ -289,24 +289,25 @@ function Publicar-No-GitHub([switch]$PermitirInterativo) {
 }
 
 function Verificar-Atualizacao-Nuvem {
+    $swLocalPath = Join-Path $baseDir 'sw.js'
+    $verLocal = 0
+    if (Test-Path $swLocalPath) {
+        $verLocal = Obter-Versao-Sw ([System.IO.File]::ReadAllText($swLocalPath, [System.Text.Encoding]::UTF8))
+    }
+    $strVerLocal = if ($verLocal -gt 0) { "okada-v$verLocal" } else { "v1" }
+
     # Se este for o PC Principal (tem github_sync_config.json), nao sobrescreve os arquivos de desenvolvimento
     if (Test-Path $configFile) {
-        return @{ atualizado = $false; motivo = "pc_principal" }
+        return @{ atualizado = $false; motivo = "pc_principal"; versao = $strVerLocal }
     }
     if (-not (Test-Path $repoSyncFile)) {
-        return @{ atualizado = $false; motivo = "sem_repo" }
+        return @{ atualizado = $false; motivo = "sem_repo"; versao = $strVerLocal }
     }
 
     try {
         $repoSlug = (Get-Content $repoSyncFile -Raw -Encoding UTF8).Trim()
         if ([string]::IsNullOrEmpty($repoSlug)) {
-            return @{ atualizado = $false; motivo = "repo_vazio" }
-        }
-
-        $swLocalPath = Join-Path $baseDir 'sw.js'
-        $verLocal = 0
-        if (Test-Path $swLocalPath) {
-            $verLocal = Obter-Versao-Sw ([System.IO.File]::ReadAllText($swLocalPath, [System.Text.Encoding]::UTF8))
+            return @{ atualizado = $false; motivo = "repo_vazio"; versao = $strVerLocal }
         }
 
         # Busca o sw.js remoto sem cache

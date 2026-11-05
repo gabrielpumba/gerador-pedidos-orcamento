@@ -1,6 +1,6 @@
 // Guarda o app no aparelho para abrir rápido e funcionar sem internet.
 // Quando mudar algo no app, troque o número da versão abaixo.
-const CACHE = 'okada-v51';
+const CACHE = 'okada-v52';
 const ARQUIVOS = [
   './', 'index.html', 'dados.enc', 'dados.js', 'tabelas_padrao.json', 'tabelas_padrao.js', 'pdfjs/pdf.min.js', 'pdfjs/pdf.worker.min.js', 'fonts/plus-jakarta-sans-latin.woff2', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'logo-okada.webp', 'logo-okada-pdf.webp',
   'logos/adelmar.webp', 'logos/aec.webp', 'logos/avionix.webp', 'logos/bortec.webp',
