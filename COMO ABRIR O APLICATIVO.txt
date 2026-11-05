@@ -1,0 +1,29 @@
+==================================================
+           OKADA PEDIDOS - GUIA RÁPIDO
+==================================================
+
+1. COMO INSTALAR E CRIAR O ATALHO:
+   Basta dar dois cliques no arquivo:
+   👉 "Instalar Okada Pedidos.bat"
+   
+   Isso criará automaticamente o atalho com o ícone
+   da Okada na sua Área de Trabalho e abrirá o aplicativo.
+
+2. ABRIR DIRETAMENTE (SEM INSTALADOR):
+   Você também pode dar dois cliques direto em:
+   👉 "Iniciar Okada Pedidos.bat" (ou "Iniciar Okada Pedidos.vbs")
+   (O atalho na Área de Trabalho também será criado).
+
+3. SENHA DE ACESSO:
+   Na primeira vez que abrir no seu computador, digite:
+   👉 123
+   (Deixe a opção "Lembrar neste aparelho" marcada para não pedir mais).
+
+4. 100% OFFLINE:
+   O aplicativo funciona totalmente sem internet. Todas as 12 fábricas,
+   tabelas de preços atualizadas e clientes já vêm carregados.
+
+5. COMO FECHAR:
+   Feche a janela do aplicativo ou dê dois cliques em:
+   👉 "Fechar Okada Pedidos.bat"
+==================================================
