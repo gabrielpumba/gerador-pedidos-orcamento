@@ -9,7 +9,12 @@ $port = 8085
 $baseDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $baseDir) { $baseDir = (Get-Location).Path }
 $parentDir = Split-Path $baseDir -Parent
-$configFile = Join-Path $parentDir 'github_sync_config.json'
+$bigSolutionDir = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Gabriel\big solution'
+$configFile = if (Test-Path $bigSolutionDir) {
+    Join-Path $bigSolutionDir 'github_sync_config.json'
+} else {
+    Join-Path $parentDir 'github_sync_config.json'
+}
 $repoSyncFile = Join-Path $baseDir 'repo_sync.txt'
 
 function Obter-GitBlobSha([byte[]]$bytes) {
@@ -30,32 +35,40 @@ function Obter-Versao-Sw([string]$conteudoSw) {
 }
 
 function Sincronizar-Pasta-Beta {
-    $betaDir = Join-Path $parentDir 'Okada Pedidos - Versao Beta'
-    if (Test-Path $betaDir) {
-        $arquivosCopiar = @(
-            'index.html', 'sw.js', 'dados.enc', 'dados.js', 'distribuidoras.js',
-            'tabelas_padrao.json', 'tabelas_padrao.js', 'manifest.webmanifest',
-            'icon-192.png', 'icon-512.png', 'logo-okada.webp', 'logo-okada-pdf.webp',
-            'okada.ico', 'robots.txt', '_headers', 'COMO ABRIR O APLICATIVO.txt',
-            'Fechar Okada Pedidos.bat', 'Iniciar Okada Pedidos.bat',
-            'Iniciar Okada Pedidos.vbs', 'Instalar Okada Pedidos.bat', 'instalar.vbs',
-            'servidor.ps1', 'repo_sync.txt', 'README.md'
-        )
-        foreach ($arq in $arquivosCopiar) {
-            $orig = Join-Path $baseDir $arq
-            if (Test-Path $orig) {
-                Copy-Item -Path $orig -Destination $betaDir -Force
+    $raizRef = if (Test-Path $bigSolutionDir) { $bigSolutionDir } else { $parentDir }
+    $betaDir = Join-Path $raizRef 'Okada Pedidos - Versao Beta'
+    $projDir = Join-Path $raizRef 'prorgrama pedido'
+    $instDir = Join-Path $env:USERPROFILE 'Okada Pedidos'
+
+    $arquivosCopiar = @(
+        'index.html', 'sw.js', 'dados.enc', 'dados.js', 'distribuidoras.js',
+        'tabelas_padrao.json', 'tabelas_padrao.js', 'manifest.webmanifest',
+        'icon-192.png', 'icon-512.png', 'logo-okada.webp', 'logo-okada-pdf.webp',
+        'okada.ico', 'robots.txt', '_headers', 'COMO ABRIR O APLICATIVO.txt',
+        'Fechar Okada Pedidos.bat', 'Iniciar Okada Pedidos.bat',
+        'Iniciar Okada Pedidos.vbs', 'Instalar Okada Pedidos.bat', 'instalar.vbs',
+        'servidor.ps1', 'repo_sync.txt', 'README.md'
+    )
+
+    foreach ($destDir in @($betaDir, $projDir, $instDir)) {
+        if ((Test-Path $destDir) -and ($destDir.TrimEnd('\') -ne $baseDir.TrimEnd('\'))) {
+            foreach ($arq in $arquivosCopiar) {
+                $orig = Join-Path $baseDir $arq
+                if (Test-Path $orig) {
+                    Copy-Item -Path $orig -Destination $destDir -Force -ErrorAction SilentlyContinue
+                }
             }
-        }
-        foreach ($pasta in @('fonts', 'logos', 'pdfjs')) {
-            $origP = Join-Path $baseDir $pasta
-            if (Test-Path $origP) {
-                Copy-Item -Path $origP -Destination $betaDir -Recurse -Force
+            foreach ($pasta in @('fonts', 'logos', 'pdfjs')) {
+                $origP = Join-Path $baseDir $pasta
+                if (Test-Path $origP) {
+                    Copy-Item -Path $origP -Destination $destDir -Recurse -Force -ErrorAction SilentlyContinue
+                }
             }
         }
     }
+
     try {
-        $zipDest = Join-Path $parentDir 'Okada Pedidos - Versao Beta.zip'
+        $zipDest = Join-Path $raizRef 'Okada Pedidos - Versao Beta.zip'
         $pastaOrigZip = if (Test-Path $betaDir) { $betaDir } else { $baseDir }
         Compress-Archive -Path "$pastaOrigZip\*" -DestinationPath $zipDest -Force -ErrorAction SilentlyContinue
     } catch { }
@@ -504,7 +517,7 @@ while ($listener.IsListening) {
             $jsPath = Join-Path $baseDir 'tabelas_padrao.js'
             [System.IO.File]::WriteAllText($jsPath, "window.TABELAS_PADRAO = $body;", $utf8NoBom)
 
-            # 2. Incrementa a versao do Service Worker em sw.js
+            # 2. Incrementa a versao do Service Worker em sw.js e index.html
             $novaVer = 0
             $swPath = Join-Path $baseDir 'sw.js'
             if (Test-Path $swPath) {
@@ -514,6 +527,12 @@ while ($listener.IsListening) {
                     $swContent = $swContent -replace "okada-v\d+", "okada-v$novaVer"
                     [System.IO.File]::WriteAllText($swPath, $swContent, $utf8NoBom)
                 }
+            }
+            $idxPath = Join-Path $baseDir 'index.html'
+            if (($novaVer -gt 0) -and (Test-Path $idxPath)) {
+                $idxContent = [System.IO.File]::ReadAllText($idxPath, [System.Text.Encoding]::UTF8)
+                $idxContent = $idxContent -replace "Versão okada-v\d+", "Versão okada-v$novaVer"
+                [System.IO.File]::WriteAllText($idxPath, $idxContent, $utf8NoBom)
             }
 
             # 3. Publica no GitHub (se configurado ou abre assistente na primeira vez)
