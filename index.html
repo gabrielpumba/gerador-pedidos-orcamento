@@ -1174,10 +1174,20 @@
     .fin-total strong { font-size: 27px; color: var(--grena); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .fin-total strong.longo { font-size: 21px; }
     .fin-aviso { max-width: 440px; padding: 10px 14px; border-radius: var(--r-md); background: var(--vidro-2); font-size: 14px; font-weight: 700; line-height: 1.35; }
+    .fin-envio-grid { width: 100%; max-width: 440px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fin-envio-grid .botao { width: 100%; min-width: 0; padding: 0 10px; font-size: 14.5px; letter-spacing: 0.02em; }
     .botao-zap { background: #25D366; color: #053D21; }
     .botao-zap:active { background: #1FB858; }
     .botao-zap:disabled { background: rgba(255, 255, 255, 0.26); color: rgba(255, 255, 255, 0.75); }
-    .botao-zap .ic-zap { width: 28px; height: 28px; fill: currentColor; stroke: none; }
+    .botao-zap .ic-zap { width: 24px; height: 24px; fill: currentColor; stroke: none; flex: none; }
+    .botao-email { background: #1E64D8; color: #FFFFFF; }
+    .botao-email:active { background: #1752B5; }
+    .botao-email:disabled { background: rgba(255, 255, 255, 0.26); color: rgba(255, 255, 255, 0.75); }
+    .botao-email .ic { width: 22px; height: 22px; flex: none; }
+    @media (max-width: 360px) {
+      .fin-envio-grid { gap: 8px; }
+      .fin-envio-grid .botao { font-size: 13.5px; gap: 6px; padding: 0 8px; }
+    }
     .fin-sec { width: 100%; max-width: 440px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .fin-link {
       min-height: 52px; border: none; border-radius: var(--r-md); padding: 0 10px;
@@ -1463,6 +1473,7 @@
     .vp-acao .ic { width: 20px; height: 20px; flex: none; }
     .vp-zap { background: #25D366; color: #053D21; }
     .vp-zap .ic-zap { width: 22px; height: 22px; fill: currentColor; stroke: none; }
+    .vp-email { background: #1E64D8; color: #FFFFFF; }
     @media (max-width: 350px) { .vp-acao { font-size: 12.5px; gap: 4px; } .vp-nivel { min-width: 50px; } .vp-bt { width: 40px; } }
     @media (max-height: 520px) { .vp-acao { min-height: 44px; } .vp-rodape { padding-top: 6px; } }
 
@@ -1752,6 +1763,75 @@
     .modal-editar-cliente-op:hover, .modal-editar-cliente-op.sel { border-color: var(--grena); background: var(--rosa); }
     .modal-editar-cliente-op strong { font-size: 14px; font-weight: 800; color: var(--grena); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .modal-editar-cliente-op span { font-size: 12px; font-weight: 600; color: var(--tinta-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .modal-email {
+      width: min(94vw, 520px);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 18px 16px;
+      border-radius: 24px;
+      text-align: left;
+    }
+    .modal-email h3 { margin: 0; font-size: 19px; font-weight: 800; color: var(--grena); display: flex; align-items: center; gap: 8px; }
+    .modal-email h3 .ic { width: 22px; height: 22px; flex: none; }
+    .modal-email-rolagem { overflow-y: auto; margin-top: 10px; padding-right: 2px; display: flex; flex-direction: column; gap: 8px; }
+    .email-conta-barra {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 9px 12px; border-radius: 12px; background: var(--rosa); border: 1px solid #E9DDE1;
+    }
+    .email-conta-info { min-width: 0; flex: 1; }
+    .email-conta-info strong { display: block; font-size: 13.5px; font-weight: 800; color: var(--grena); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-conta-info span { display: block; font-size: 11.5px; font-weight: 600; color: var(--tinta-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-conta-bt {
+      flex: none; border: 1.5px solid var(--grena); background: #FFFFFF; color: var(--grena);
+      font: inherit; font-size: 11.5px; font-weight: 800; padding: 5px 10px; border-radius: 999px; cursor: pointer;
+    }
+    .email-conta-bt:active { background: var(--rosa); }
+    .email-cfg-box {
+      padding: 12px; border-radius: 14px; background: #FAF6F8; border: 1.5px solid #E5D8DD;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .email-campo {
+      width: 100%; min-height: 42px; padding: 0 12px; border: 1.5px solid #DCCFD4; border-radius: 10px;
+      background: #FFFFFF; color: var(--tinta); font: inherit; font-size: 14px; font-weight: 600; outline: none;
+    }
+    .email-campo:focus { border-color: var(--grena); }
+    .email-textarea {
+      width: 100%; min-height: 78px; padding: 9px 12px; border: 1.5px solid #DCCFD4; border-radius: 10px;
+      background: #FFFFFF; color: var(--tinta); font: inherit; font-size: 13.5px; font-weight: 500; line-height: 1.4;
+      resize: vertical; outline: none;
+    }
+    .email-textarea:focus { border-color: var(--grena); }
+    .email-senha-wrap { position: relative; display: flex; align-items: center; }
+    .email-senha-wrap .email-campo { padding-right: 76px; }
+    .email-ver-senha {
+      position: absolute; right: 6px; border: none; background: var(--rosa); color: var(--grena);
+      font: inherit; font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 8px; cursor: pointer;
+    }
+    .email-dica-prov { font-size: 12px; font-weight: 600; color: var(--tinta-2); line-height: 1.35; margin: 0; }
+    .email-smtp-toggle {
+      align-self: flex-start; border: none; background: none; padding: 2px 0; color: var(--grena);
+      font: inherit; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer;
+    }
+    .email-smtp-grade { display: grid; grid-template-columns: 1fr 86px; gap: 8px; }
+    .email-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--tinta); cursor: pointer; }
+    .email-check input { width: 17px; height: 17px; accent-color: var(--grena); }
+    .email-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+    .email-chip {
+      border: 1px solid #DCCFD4; background: #FAF6F8; color: var(--grena); font: inherit; font-size: 11.5px; font-weight: 700;
+      padding: 4px 10px; border-radius: 999px; cursor: pointer;
+    }
+    .email-chip:hover { background: var(--rosa); border-color: var(--grena); }
+    .email-anexo {
+      display: flex; align-items: center; gap: 8px; padding: 8px 11px; border-radius: 10px;
+      background: #F4F7FC; border: 1px solid #D3E0F5; color: #1E4D99; font-size: 12.5px; font-weight: 700;
+    }
+    .email-anexo .ic { width: 16px; height: 16px; flex: none; }
+    .email-anexo span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .email-alt-bt {
+      margin-top: 6px; border: none; background: none; color: var(--tinta-2); font: inherit;
+      font-size: 12px; font-weight: 700; text-decoration: underline; cursor: pointer; align-self: center; padding: 4px 8px;
+    }
     .modal-itens-topo {
       display: flex;
       align-items: flex-start;
@@ -2171,6 +2251,7 @@
     <symbol id="i-clientes" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></symbol>
     <symbol id="i-direita" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
     <symbol id="i-editar" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+<symbol id="i-email" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
     <symbol id="i-engrenagem" viewBox="0 0 24 24"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></symbol>
     <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
@@ -2242,7 +2323,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v54 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v55 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -2553,7 +2634,10 @@
          </div>
         </div>
         <div class="rodape-dist">
-          <button class="botao botao-zap" id="finZap" type="button" disabled><svg class="ic ic-zap" aria-hidden="true"><use href="#i-whatsapp"/></svg><span id="finZapTxt">PREPARANDO O PDF…</span></button>
+          <div class="fin-envio-grid">
+            <button class="botao botao-zap" id="finZap" type="button" disabled><svg class="ic ic-zap" aria-hidden="true"><use href="#i-whatsapp"/></svg><span id="finZapTxt">PREPARANDO…</span></button>
+            <button class="botao botao-email" id="finEmail" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-email"/></svg><span id="finEmailTxt">ENVIAR E-MAIL</span></button>
+          </div>
           <div class="fin-sec">
             <button class="fin-link fin-dest" id="finVer" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-arquivo"/></svg><span>Ver PDF</span></button>
             <button class="fin-link fin-dest" id="finPrazo" type="button"><svg class="ic" aria-hidden="true"><use href="#i-relogio"/></svg><span id="finPrazoTxt">Adicionar prazo</span></button>
@@ -3015,6 +3099,7 @@
     <div class="vp-rodape" id="vpRodape" hidden>
       <button class="vp-acao vp-editar" id="vpEditar" type="button"><svg class="ic" aria-hidden="true"><use href="#i-lapis"/></svg><span>Editar</span></button>
       <button class="vp-acao vp-zap" id="vpZap" type="button"><svg class="ic ic-zap" aria-hidden="true"><use href="#i-whatsapp"/></svg><span>WhatsApp</span></button>
+      <button class="vp-acao vp-email" id="vpEmail" type="button"><svg class="ic" aria-hidden="true"><use href="#i-email"/></svg><span>E-mail</span></button>
       <button class="vp-acao" id="vpSalvar" type="button"><svg class="ic" aria-hidden="true"><use href="#i-baixar"/></svg><span>Salvar PDF</span></button>
     </div>
   </section>
@@ -3092,6 +3177,71 @@
       <button class="dlg-bt" id="btEditarClienteCancelar" type="button">Cancelar</button>
       <button class="dlg-bt dlg-sim" id="btEditarClienteSalvar" type="button">Salvar</button>
     </div>
+  </div>
+  <div class="dlg modal-email" id="modalEnviarEmail" role="dialog" aria-modal="true" aria-labelledby="modalEmailT" hidden>
+    <h3 id="modalEmailT"><svg class="ic" aria-hidden="true"><use href="#i-email"/></svg><span>Enviar por E-mail</span></h3>
+    <div class="modal-email-rolagem">
+      <div class="email-conta-barra" id="emailContaBarra" hidden>
+        <div class="email-conta-info">
+          <strong id="emailContaAtual"></strong>
+          <span id="emailContaSmtp"></span>
+        </div>
+        <button class="email-conta-bt" id="btEmailAlterarConta" type="button">Trocar e-mail</button>
+      </div>
+      <div class="email-cfg-box" id="emailCfgBox">
+        <label class="modal-editar-cliente-rot" for="emailRemetente" style="margin-top: 0;">Seu e-mail (remetente)</label>
+        <input class="email-campo" id="emailRemetente" type="email" placeholder="Ex.: seunome@uol.com.br, @gmail.com, etc." autocomplete="email" spellcheck="false">
+        <p class="email-dica-prov" id="emailDicaProv">Funciona com @uol.com.br, @gmail.com, @outlook.com, @yahoo.com ou qualquer provedor.</p>
+        <label class="modal-editar-cliente-rot" for="emailSenha" style="margin-top: 2px;">Senha do e-mail (ou senha de app)</label>
+        <div class="email-senha-wrap">
+          <input class="email-campo" id="emailSenha" type="password" placeholder="Digite a senha do seu e-mail" autocomplete="current-password">
+          <button class="email-ver-senha" id="btEmailVerSenha" type="button">Mostrar</button>
+        </div>
+        <label class="modal-editar-cliente-rot" for="emailRemNome" style="margin-top: 2px;">Nome que aparece no envio (opcional)</label>
+        <input class="email-campo" id="emailRemNome" type="text" value="Okada Representações" placeholder="Okada Representações" maxlength="60">
+        <button class="email-smtp-toggle" id="btEmailSmtpAvancado" type="button">Configuração avançada (SMTP / Porta)</button>
+        <div class="email-smtp-grade" id="emailSmtpGrade" hidden>
+          <div>
+            <label class="modal-editar-cliente-rot" for="emailSmtpHost" style="margin-top: 0;">Servidor SMTP</label>
+            <input class="email-campo" id="emailSmtpHost" type="text" placeholder="smtps.uol.com.br" spellcheck="false">
+          </div>
+          <div>
+            <label class="modal-editar-cliente-rot" for="emailSmtpPort" style="margin-top: 0;">Porta</label>
+            <input class="email-campo" id="emailSmtpPort" type="number" value="587" min="1" max="65535">
+          </div>
+        </div>
+        <label class="email-check"><input type="checkbox" id="emailSalvarCred" checked> Lembrar meu e-mail e senha neste computador</label>
+      </div>
+
+      <div>
+        <label class="modal-editar-cliente-rot" for="emailPara">Para (e-mail de destino)</label>
+        <input class="email-campo" id="emailPara" type="text" placeholder="cliente@empresa.com.br (separe vários com vírgula)" autocomplete="email" spellcheck="false">
+        <div class="email-chips" id="emailParaChips" hidden></div>
+      </div>
+
+      <div>
+        <label class="modal-editar-cliente-rot" for="emailAssunto">Assunto</label>
+        <input class="email-campo" id="emailAssunto" type="text" maxlength="160">
+      </div>
+
+      <div>
+        <label class="modal-editar-cliente-rot" for="emailMensagem">Mensagem</label>
+        <textarea class="email-textarea" id="emailMensagem"></textarea>
+      </div>
+
+      <label class="email-check"><input type="checkbox" id="emailCcSelf"> Enviar uma cópia (CC) para o meu e-mail</label>
+
+      <div class="email-anexo" id="emailAnexoInfo">
+        <svg class="ic" aria-hidden="true"><use href="#i-arquivo"/></svg>
+        <span id="emailAnexoNome">Pedido.pdf</span>
+      </div>
+    </div>
+    <p class="dlg-erro" id="erroEnviarEmail" role="alert" hidden></p>
+    <div class="dlg-bts" style="margin-top: 12px;">
+      <button class="dlg-bt" id="btEmailCancelar" type="button">Cancelar</button>
+      <button class="dlg-bt dlg-sim" id="btEmailEnviar" type="button">Enviar e-mail</button>
+    </div>
+    <button class="email-alt-bt" id="btEmailAppExterno" type="button">Ou salvar PDF e abrir no app de e-mail do Windows</button>
   </div>
   <div class="dlg" id="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT" aria-describedby="dlgX" hidden>
     <h3 id="dlgT"></h3>
@@ -3655,6 +3805,7 @@
         if (t === 'home') { indoParaInicio = false; aplicar('home'); } else history.back();
         return;
       }
+      if (modalEnviarEmail && !modalEnviarEmail.hidden) { fecharModalEnviarEmail(); history.pushState({ t: tela }, ''); return; }
       if (modalEditarCliente && !modalEditarCliente.hidden) { fecharModalEditarCliente(); history.pushState({ t: tela }, ''); return; }
       if (modalItensAviso && !modalItensAviso.hidden) { fecharModalItensTabela(); history.pushState({ t: tela }, ''); return; }
       if (modalVariacoesAberto) { fecharModalVariacoes(); history.pushState({ t: tela }, ''); return; }
@@ -10492,12 +10643,18 @@
     $('menuGer').addEventListener('click', function () { abrirTabelas(null); });
     $('menuFechar').addEventListener('click', function () { if (tela === 'menu') history.back(); });
     dlgFundo.addEventListener('click', function () {
+      if (modalEnviarEmail && !modalEnviarEmail.hidden) { fecharModalEnviarEmail(); return; }
       if (modalEditarCliente && !modalEditarCliente.hidden) { fecharModalEditarCliente(); return; }
       if (modalItensAviso && !modalItensAviso.hidden) { fecharModalItensTabela(); return; }
       if (modalVariacoesAberto) { fecharModalVariacoes(); return; }
       if (tela === 'menu') history.back();
     });
     window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modalEnviarEmail && !modalEnviarEmail.hidden) {
+        e.preventDefault();
+        fecharModalEnviarEmail();
+        return;
+      }
       if (e.key === 'Escape' && modalEditarCliente && !modalEditarCliente.hidden) {
         e.preventDefault();
         fecharModalEditarCliente();
@@ -11235,15 +11392,20 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     // ---------- A tela final: "Ricardo, seu pedido está finalizado, como deseja enviar?" (WhatsApp ou e-mail) ----------
     const finLogo = $('finLogo'), finTitulo = $('finTitulo'), finNumero = $('finNumero'), finRep = $('finRep'), finCli = $('finCli'), finMeta = $('finMeta');
     const finTotRot = $('finTotRot'), finTot = $('finTot'), finAviso = $('finAviso'), finRolagem = $('finRolagem');
-    const finZap = $('finZap'), finZapTxt = $('finZapTxt'), finSalvar = $('finSalvar'), finNovo = $('finNovo'), finNumBt = $('finNumBt');
+    const finZap = $('finZap'), finZapTxt = $('finZapTxt'), finEmail = $('finEmail'), finEmailTxt = $('finEmailTxt'), finSalvar = $('finSalvar'), finNovo = $('finNovo'), finNumBt = $('finNumBt');
     const finPrazo = $('finPrazo'), finPrazoTxt = $('finPrazoTxt'), finVer = $('finVer');
 
     function finEstado(e, aviso) {                               // 'gerando' · 'pronto' · 'erro'
       finZap.dataset.estado = e;
       finZap.disabled = e === 'gerando';
+      if (finEmail) {
+        finEmail.dataset.estado = e;
+        finEmail.disabled = e !== 'pronto';
+      }
       finSalvar.disabled = e !== 'pronto';
       finVer.disabled = e !== 'pronto';
-      finZapTxt.textContent = e === 'gerando' ? 'PREPARANDO O PDF…' : (e === 'erro' ? 'TENTAR DE NOVO' : 'ENVIAR NO WHATSAPP');
+      finZapTxt.textContent = e === 'gerando' ? 'PREPARANDO…' : (e === 'erro' ? 'TENTAR DE NOVO' : 'WHATSAPP');
+      if (finEmailTxt) finEmailTxt.textContent = e === 'gerando' ? 'AGUARDE…' : 'E-MAIL';
       finAviso.hidden = !aviso;
       finAviso.textContent = aviso || '';
     }
@@ -11377,6 +11539,20 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
                   sim: 'Novo ' + (modo === 'pedido' ? 'pedido' : 'orçamento'), nao: 'Voltar', perigo: true }).then(function (ok) { if (ok && tela === 'final') ir(); });
     }
     finZap.addEventListener('click', enviarWhatsapp);
+    if (finEmail) {
+      finEmail.addEventListener('click', function () {
+        if (tela !== 'final' || !finPdf || finEmail.disabled) return;
+        const d = distribuidoraEscolhida || {};
+        abrirModalEnviarEmail({
+          bytes: finPdf.bytes,
+          nomePdf: finPdf.nome,
+          assunto: rotuloModoTexto() + ' Nº ' + finPdf.numero + ' - ' + representada.nome + ' - ' + (d.nome || ''),
+          mensagem: 'Olá,\n\nSegue em anexo o ' + rotuloModoTexto().toLowerCase() + ':\n\n' + textoDoEnvio(),
+          emailsSugeridos: [d.email, d.emailNfe].filter(Boolean),
+          aoEnviarSucesso: function () { marcarEnviado(); }
+        });
+      });
+    }
     finNumBt.addEventListener('click', editarNumero);
     if ($('finCliBt')) $('finCliBt').addEventListener('click', abrirModalEditarCliente);
     finSalvar.addEventListener('click', function () { salvarPdf(false); });
@@ -12080,7 +12256,304 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         plano();
       });
     }
+    const modalEnviarEmail = $('modalEnviarEmail');
+    const emailContaBarra = $('emailContaBarra'), emailContaAtual = $('emailContaAtual'), emailContaSmtp = $('emailContaSmtp'), btEmailAlterarConta = $('btEmailAlterarConta');
+    const emailCfgBox = $('emailCfgBox'), emailRemetente = $('emailRemetente'), emailDicaProv = $('emailDicaProv');
+    const emailSenha = $('emailSenha'), btEmailVerSenha = $('btEmailVerSenha'), emailRemNome = $('emailRemNome');
+    const btEmailSmtpAvancado = $('btEmailSmtpAvancado'), emailSmtpGrade = $('emailSmtpGrade'), emailSmtpHost = $('emailSmtpHost'), emailSmtpPort = $('emailSmtpPort');
+    const emailSalvarCred = $('emailSalvarCred'), emailPara = $('emailPara'), emailParaChips = $('emailParaChips');
+    const emailAssunto = $('emailAssunto'), emailMensagem = $('emailMensagem'), emailCcSelf = $('emailCcSelf');
+    const emailAnexoNome = $('emailAnexoNome'), erroEnviarEmail = $('erroEnviarEmail');
+    const btEmailCancelar = $('btEmailCancelar'), btEmailEnviar = $('btEmailEnviar'), btEmailAppExterno = $('btEmailAppExterno');
+
+    let emailCtx = null;
+    let emailCfgSalva = null;
+    let emailSmtpManual = false;
+    let emailEnviando = false;
+
+    const PROVEDORES_SMTP = {
+      'uol.com.br':       { host: 'smtps.uol.com.br', port: 587, dica: 'UOL Mail detectado (smtps.uol.com.br · porta 587). Use seu e-mail completo e sua senha (ou senha de app se usar 2FA).' },
+      'bol.com.br':       { host: 'smtps.bol.com.br', port: 587, dica: 'BOL Mail detectado (smtps.bol.com.br · porta 587).' },
+      'gmail.com':        { host: 'smtp.gmail.com', port: 587, dica: 'Gmail detectado (smtp.gmail.com · porta 587). O Google exige uma "Senha de App" da sua Conta Google.' },
+      'googlemail.com':   { host: 'smtp.gmail.com', port: 587, dica: 'Gmail detectado (smtp.gmail.com · porta 587). Use uma "Senha de App" da sua Conta Google.' },
+      'outlook.com':      { host: 'smtp-mail.outlook.com', port: 587, dica: 'Outlook detectado (smtp-mail.outlook.com · porta 587).' },
+      'hotmail.com':      { host: 'smtp-mail.outlook.com', port: 587, dica: 'Hotmail detectado (smtp-mail.outlook.com · porta 587).' },
+      'live.com':         { host: 'smtp-mail.outlook.com', port: 587, dica: 'Outlook/Live detectado (smtp-mail.outlook.com · porta 587).' },
+      'msn.com':          { host: 'smtp-mail.outlook.com', port: 587, dica: 'Outlook/MSN detectado (smtp-mail.outlook.com · porta 587).' },
+      'yahoo.com':        { host: 'smtp.mail.yahoo.com', port: 587, dica: 'Yahoo detectado (smtp.mail.yahoo.com · porta 587). Pode exigir Senha de App.' },
+      'yahoo.com.br':     { host: 'smtp.mail.yahoo.com', port: 587, dica: 'Yahoo Brasil detectado (smtp.mail.yahoo.com · porta 587). Pode exigir Senha de App.' },
+      'terra.com.br':     { host: 'smtp.terra.com.br', port: 587, dica: 'Terra Mail detectado (smtp.terra.com.br · porta 587).' },
+      'ig.com.br':        { host: 'smtp.ig.com.br', port: 587, dica: 'iG Mail detectado (smtp.ig.com.br · porta 587).' },
+      'globo.com':        { host: 'smtp.globo.com', port: 587, dica: 'Globo Mail detectado (smtp.globo.com · porta 587).' },
+      'globomail.com':    { host: 'smtp.globo.com', port: 587, dica: 'Globo Mail detectado (smtp.globo.com · porta 587).' },
+      'icloud.com':       { host: 'smtp.mail.me.com', port: 587, dica: 'iCloud detectado (smtp.mail.me.com · porta 587). Exige Senha de App da Apple.' },
+      'me.com':           { host: 'smtp.mail.me.com', port: 587, dica: 'iCloud detectado (smtp.mail.me.com · porta 587). Exige Senha de App da Apple.' },
+      'locaweb.com.br':   { host: 'email-ssl.com.br', port: 587, dica: 'Locaweb detectado (email-ssl.com.br · porta 587).' }
+    };
+
+    function detectarSmtpPorEmail(emailStr) {
+      const m = String(emailStr || '').trim().toLowerCase().match(/@([^@\s]+)$/);
+      if (!m) return { host: '', port: 587, dica: 'Funciona com @uol.com.br, @gmail.com, @outlook.com, @yahoo.com ou qualquer provedor.' };
+      const dom = m[1];
+      if (PROVEDORES_SMTP[dom]) return PROVEDORES_SMTP[dom];
+      return {
+        host: 'smtp.' + dom,
+        port: 587,
+        dica: 'Domínio @' + dom + ': preenchido como smtp.' + dom + ' (porta 587). Se o seu provedor usar outro endereço, ajuste em Configuração avançada.'
+      };
+    }
+
+    function atualizarDicaSmtp() {
+      const info = detectarSmtpPorEmail(emailRemetente.value);
+      emailDicaProv.textContent = info.dica;
+      if (!emailSmtpManual) {
+        emailSmtpHost.value = info.host;
+        emailSmtpPort.value = String(info.port || 587);
+      }
+    }
+
+    function bytesParaBase64(bytes) {
+      const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+      let bin = '';
+      const bloco = 8192;
+      for (let i = 0; i < arr.length; i += bloco) {
+        bin += String.fromCharCode.apply(null, arr.subarray(i, i + bloco));
+      }
+      return btoa(bin);
+    }
+
+    function mostrarConfigEmail(mostrar) {
+      emailCfgBox.hidden = !mostrar;
+      emailContaBarra.hidden = mostrar || !(emailCfgSalva && emailCfgSalva.configurado);
+    }
+
+    function abrirModalEnviarEmail(ctx) {
+      if (!modalEnviarEmail || !ctx || !ctx.bytes) return;
+      emailCtx = ctx;
+      emailSmtpManual = false;
+      emailSmtpGrade.hidden = true;
+      erroEnviarEmail.hidden = true;
+      erroEnviarEmail.textContent = '';
+
+      const sugestoes = [];
+      (ctx.emailsSugeridos || []).forEach(function (em) {
+        const s = String(em || '').trim();
+        if (s && sugestoes.indexOf(s) === -1) sugestoes.push(s);
+      });
+      emailPara.value = sugestoes[0] || '';
+      emailParaChips.textContent = '';
+      if (sugestoes.length > 0) {
+        emailParaChips.hidden = false;
+        sugestoes.forEach(function (em) {
+          const ch = el('button', 'email-chip', em);
+          ch.type = 'button';
+          ch.addEventListener('click', function () {
+            const atual = emailPara.value.trim();
+            if (!atual) emailPara.value = em;
+            else if (atual.toLowerCase().indexOf(em.toLowerCase()) === -1) emailPara.value = atual + ', ' + em;
+          });
+          emailParaChips.appendChild(ch);
+        });
+      } else {
+        emailParaChips.hidden = true;
+      }
+
+      emailAssunto.value = ctx.assunto || 'Pedido Okada Representações';
+      emailMensagem.value = ctx.mensagem || '';
+      emailAnexoNome.textContent = (ctx.nomePdf || 'Pedido.pdf') + ' (anexado automaticamente)';
+      emailSenha.value = '';
+      emailSenha.type = 'password';
+      btEmailVerSenha.textContent = 'Mostrar';
+      btEmailEnviar.disabled = false;
+      btEmailEnviar.textContent = 'Enviar e-mail';
+
+      dlgFundo.hidden = false;
+      modalEnviarEmail.hidden = false;
+
+      fetch('/api/email_config', { cache: 'no-store' }).then(function (r) {
+        return r.ok ? r.json() : null;
+      }).then(function (cfg) {
+        emailCfgSalva = cfg;
+        if (cfg && cfg.configurado && cfg.temSenha) {
+          emailContaAtual.textContent = 'De: ' + cfg.email;
+          emailContaSmtp.textContent = (cfg.nome ? cfg.nome + ' · ' : '') + cfg.smtpHost + ':' + (cfg.smtpPort || 587);
+          emailRemetente.value = cfg.email || '';
+          emailRemNome.value = cfg.nome || 'Okada Representações';
+          emailSmtpHost.value = cfg.smtpHost || '';
+          emailSmtpPort.value = String(cfg.smtpPort || 587);
+          mostrarConfigEmail(false);
+          setTimeout(function () { emailPara.focus({ preventScroll: true }); }, 40);
+        } else {
+          mostrarConfigEmail(true);
+          atualizarDicaSmtp();
+          setTimeout(function () { emailRemetente.focus({ preventScroll: true }); }, 40);
+        }
+      }).catch(function () {
+        emailCfgSalva = null;
+        mostrarConfigEmail(true);
+        atualizarDicaSmtp();
+      });
+    }
+
+    function fecharModalEnviarEmail() {
+      if (!modalEnviarEmail || modalEnviarEmail.hidden) return;
+      modalEnviarEmail.hidden = true;
+      if (!dlgAberto && (!menuTab || menuTab.hidden) && (!modalItensAviso || modalItensAviso.hidden) && !modalVariacoesAberto && (!modalEditarCliente || modalEditarCliente.hidden)) {
+        dlgFundo.hidden = true;
+      }
+    }
+
+    if (emailRemetente) {
+      emailRemetente.addEventListener('input', function () {
+        erroEnviarEmail.hidden = true;
+        atualizarDicaSmtp();
+      });
+    }
+    if (btEmailAlterarConta) {
+      btEmailAlterarConta.addEventListener('click', function () {
+        mostrarConfigEmail(true);
+        emailSenha.value = '';
+        atualizarDicaSmtp();
+        emailRemetente.focus();
+      });
+    }
+    if (btEmailVerSenha) {
+      btEmailVerSenha.addEventListener('click', function () {
+        const oculta = emailSenha.type === 'password';
+        emailSenha.type = oculta ? 'text' : 'password';
+        btEmailVerSenha.textContent = oculta ? 'Ocultar' : 'Mostrar';
+      });
+    }
+    if (btEmailSmtpAvancado) {
+      btEmailSmtpAvancado.addEventListener('click', function () {
+        emailSmtpGrade.hidden = !emailSmtpGrade.hidden;
+        if (!emailSmtpGrade.hidden) emailSmtpManual = true;
+      });
+    }
+    if (btEmailCancelar) btEmailCancelar.addEventListener('click', fecharModalEnviarEmail);
+
+    if (btEmailAppExterno) {
+      btEmailAppExterno.addEventListener('click', function () {
+        if (!emailCtx || !emailCtx.bytes) return;
+        const nome = emailCtx.nomePdf || 'Pedido.pdf';
+        const url = URL.createObjectURL(new Blob([emailCtx.bytes], { type: 'application/pdf' }));
+        const a = document.createElement('a');
+        a.href = url; a.download = nome;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+        if (emailCtx.aoEnviarSucesso) emailCtx.aoEnviarSucesso();
+        const mailto = 'mailto:' + encodeURIComponent(emailPara.value.trim()) +
+          '?subject=' + encodeURIComponent(emailAssunto.value.trim()) +
+          '&body=' + encodeURIComponent(emailMensagem.value.trim());
+        try { window.open(mailto, '_blank'); } catch (e) { location.href = mailto; }
+        avisar('PDF salvo em Downloads! Anexe o arquivo no seu app de e-mail.');
+        fecharModalEnviarEmail();
+      });
+    }
+
+    if (btEmailEnviar) {
+      btEmailEnviar.addEventListener('click', function () {
+        if (emailEnviando || !emailCtx) return;
+        erroEnviarEmail.hidden = true;
+        const usandoSalva = emailCfgBox.hidden && emailCfgSalva && emailCfgSalva.configurado && emailCfgSalva.temSenha;
+        const rem = (usandoSalva ? emailCfgSalva.email : emailRemetente.value).trim();
+        const senha = usandoSalva ? '' : emailSenha.value;
+        const host = (usandoSalva ? emailCfgSalva.smtpHost : emailSmtpHost.value).trim();
+        const port = parseInt(usandoSalva ? emailCfgSalva.smtpPort : emailSmtpPort.value, 10) || 587;
+        const para = emailPara.value.trim();
+
+        if (!rem || rem.indexOf('@') === -1) {
+          erroEnviarEmail.textContent = 'Informe um e-mail remetente válido (ex.: seunome@uol.com.br).';
+          erroEnviarEmail.hidden = false;
+          if (!emailCfgBox.hidden) emailRemetente.focus();
+          return;
+        }
+        if (!usandoSalva && !senha) {
+          erroEnviarEmail.textContent = 'Digite a senha do seu e-mail (ou senha de aplicativo).';
+          erroEnviarEmail.hidden = false;
+          emailSenha.focus();
+          return;
+        }
+        if (!para || para.indexOf('@') === -1) {
+          erroEnviarEmail.textContent = 'Informe o e-mail do destinatário no campo "Para".';
+          erroEnviarEmail.hidden = false;
+          emailPara.focus();
+          return;
+        }
+
+        emailEnviando = true;
+        btEmailEnviar.disabled = true;
+        btEmailEnviar.textContent = 'Enviando…';
+
+        const payload = {
+          remetenteEmail: rem,
+          remetenteNome: (usandoSalva ? emailCfgSalva.nome : emailRemNome.value).trim(),
+          senha: senha,
+          smtpHost: host,
+          smtpPort: port,
+          smtpSsl: true,
+          salvarConfig: !usandoSalva && !!emailSalvarCred.checked,
+          para: para,
+          ccSelf: !!emailCcSelf.checked,
+          assunto: emailAssunto.value.trim(),
+          mensagem: emailMensagem.value,
+          pdfNome: emailCtx.nomePdf || 'Pedido.pdf',
+          pdfBase64: bytesParaBase64(emailCtx.bytes)
+        };
+
+        fetch('/api/enviar_email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(function (r) {
+          return r.json();
+        }).then(function (res) {
+          emailEnviando = false;
+          btEmailEnviar.disabled = false;
+          btEmailEnviar.textContent = 'Enviar e-mail';
+          if (res && res.ok) {
+            if (emailCtx.aoEnviarSucesso) emailCtx.aoEnviarSucesso();
+            fecharModalEnviarEmail();
+            avisar('E-mail enviado com sucesso para ' + para + '!');
+          } else {
+            erroEnviarEmail.textContent = (res && res.erro) || 'Não foi possível enviar o e-mail. Confira os dados e tente novamente.';
+            erroEnviarEmail.hidden = false;
+          }
+        }).catch(function () {
+          emailEnviando = false;
+          btEmailEnviar.disabled = false;
+          btEmailEnviar.textContent = 'Enviar e-mail';
+          erroEnviarEmail.textContent = 'Servidor local indisponível. Use "Salvar PDF e abrir no app de e-mail do Windows" abaixo.';
+          erroEnviarEmail.hidden = false;
+        });
+      });
+    }
+
     $('vpZap').addEventListener('click', regEnviar);
+    if ($('vpEmail')) {
+      $('vpEmail').addEventListener('click', function () {
+        if (!vp || !vp.o || !vp.o.bytes) return;
+        const r = vp.o.registro || (finPdf ? { nome: finPdf.nome, numero: finPdf.numero, fab: (representada ? representada.nome : ''), cli: (distribuidoraEscolhida ? distribuidoraEscolhida.nome : ''), ts: Date.now() } : null);
+        const nomePdf = (r && r.nome) || ((vp.o.titulo ? vp.o.titulo.replace(/[^\w\d\-_ ]/g, '_') : 'Pedido') + '.pdf');
+        const cliNome = (r && r.cli) || (distribuidoraEscolhida ? distribuidoraEscolhida.nome : '');
+        const fabNome = (r && r.fab) || (representada ? representada.nome : '');
+        const cliCad = CADASTRO.find(function (c) { return (c.nome || '').toLowerCase().trim() === (cliNome || '').toLowerCase().trim(); });
+        const sugEmails = [];
+        if (r && r.distribuidora && r.distribuidora.email) sugEmails.push(r.distribuidora.email);
+        if (r && r.distribuidora && r.distribuidora.emailNfe) sugEmails.push(r.distribuidora.emailNfe);
+        if (cliCad && cliCad.email) sugEmails.push(cliCad.email);
+        if (cliCad && cliCad.emailNfe) sugEmails.push(cliCad.emailNfe);
+        const assunto = (r && r.numero ? rotuloReg(r) + ' Nº ' + r.numero : (vp.o.titulo || 'Pedido')) + (fabNome ? ' - ' + fabNome : '') + (cliNome ? ' - ' + cliNome : '');
+        const texto = r ? regTextoEnvio(r) : (vp.o.titulo || 'Pedido');
+        abrirModalEnviarEmail({
+          bytes: vp.o.bytes,
+          nomePdf: nomePdf,
+          assunto: assunto,
+          mensagem: 'Olá,\n\nSegue em anexo o documento:\n\n' + texto,
+          emailsSugeridos: sugEmails
+        });
+      });
+    }
     $('vpSalvar').addEventListener('click', function () {
       if (!vp || !vp.o || !vp.o.bytes) return;
       const reg = vp.o.registro || { nome: (vp.o.titulo ? vp.o.titulo.replace(/[^\w\d\-_ ]/g, '_') : 'Pedido') + '.pdf' };

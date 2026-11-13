@@ -1,4 +1,4 @@
-param(
+﻿param(
     [switch]$NoOpen,
     [switch]$ConfigurarNuvem
 )
@@ -363,7 +363,7 @@ function Verificar-Atualizacao-Nuvem {
         $wc = New-Object System.Net.WebClient
         $wc.Headers.Add("User-Agent", "OkadaPedidos-Updater")
 
-        $arquivosBaixar = @('index.html', 'tabelas_padrao.json', 'tabelas_padrao.js', 'dados.js', 'dados.enc', 'sw.js')
+        $arquivosBaixar = @('index.html', 'tabelas_padrao.json', 'tabelas_padrao.js', 'dados.js', 'dados.enc', 'sw.js', 'servidor.ps1')
         foreach ($arq in $arquivosBaixar) {
             $destArq = Join-Path $baseDir $arq
             if ($remoteShas.ContainsKey($arq) -and (Test-Path $destArq)) {
@@ -387,6 +387,175 @@ function Verificar-Atualizacao-Nuvem {
         return @{ atualizado = $true; versao = "okada-v$verRemota" }
     } catch {
         return @{ atualizado = $false; erro = $_.Exception.Message }
+    }
+}
+
+function Obter-Caminho-EmailConfig {
+    $dir = Join-Path $env:LOCALAPPDATA 'OkadaPedidos'
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+    return (Join-Path $dir 'email_config.json')
+}
+
+function Proteger-Texto-Local([string]$texto) {
+    if ([string]::IsNullOrEmpty($texto)) { return '' }
+    try {
+        $sec = ConvertTo-SecureString $texto -AsPlainText -Force
+        return (ConvertFrom-SecureString $sec)
+    } catch {
+        return ''
+    }
+}
+
+function Desproteger-Texto-Local([string]$cifrado) {
+    if ([string]::IsNullOrEmpty($cifrado)) { return '' }
+    try {
+        $sec = ConvertTo-SecureString $cifrado
+        $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec)
+        try {
+            return [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+        } finally {
+            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        }
+    } catch {
+        return ''
+    }
+}
+
+function Ler-EmailConfig {
+    $path = Obter-Caminho-EmailConfig
+    if (-not (Test-Path $path)) { return $null }
+    try {
+        $obj = Get-Content $path -Raw -Encoding UTF8 | ConvertFrom-Json
+        if (-not $obj -or [string]::IsNullOrWhiteSpace($obj.email)) { return $null }
+        return $obj
+    } catch {
+        return $null
+    }
+}
+
+function Salvar-EmailConfig($dados) {
+    $path = Obter-Caminho-EmailConfig
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    $existente = Ler-EmailConfig
+    $senhaEnc = ''
+    if (-not [string]::IsNullOrEmpty($dados.senha)) {
+        $senhaEnc = Proteger-Texto-Local ([string]$dados.senha)
+    } elseif ($existente -and $existente.email -eq $dados.email -and $existente.senhaEnc) {
+        $senhaEnc = [string]$existente.senhaEnc
+    }
+    $obj = @{
+        email    = ([string]$dados.email).Trim()
+        nome     = ([string]$dados.nome).Trim()
+        smtpHost = ([string]$dados.smtpHost).Trim()
+        smtpPort = if ($dados.smtpPort) { [int]$dados.smtpPort } else { 587 }
+        smtpSsl  = if ($null -ne $dados.smtpSsl) { [bool]$dados.smtpSsl } else { $true }
+        senhaEnc = $senhaEnc
+    } | ConvertTo-Json -Compress
+    [System.IO.File]::WriteAllText($path, $obj, $utf8NoBom)
+}
+
+function Enviar-Email-Smtp($payload) {
+    $cfgSalva = Ler-EmailConfig
+    $remetenteEmail = if ($payload.remetenteEmail) { ([string]$payload.remetenteEmail).Trim() } elseif ($cfgSalva) { [string]$cfgSalva.email } else { '' }
+    $remetenteNome = if ($null -ne $payload.remetenteNome) { ([string]$payload.remetenteNome).Trim() } elseif ($cfgSalva) { [string]$cfgSalva.nome } else { 'Okada Representacoes' }
+    $smtpHost = if ($payload.smtpHost) { ([string]$payload.smtpHost).Trim() } elseif ($cfgSalva) { [string]$cfgSalva.smtpHost } else { '' }
+    $smtpPort = if ($payload.smtpPort) { [int]$payload.smtpPort } elseif ($cfgSalva -and $cfgSalva.smtpPort) { [int]$cfgSalva.smtpPort } else { 587 }
+    $smtpSsl = if ($null -ne $payload.smtpSsl) { [bool]$payload.smtpSsl } elseif ($cfgSalva -and ($null -ne $cfgSalva.smtpSsl)) { [bool]$cfgSalva.smtpSsl } else { $true }
+
+    $senha = ''
+    if (-not [string]::IsNullOrEmpty($payload.senha)) {
+        $senha = [string]$payload.senha
+    } elseif ($cfgSalva -and $cfgSalva.senhaEnc -and ($cfgSalva.email -eq $remetenteEmail)) {
+        $senha = Desproteger-Texto-Local ([string]$cfgSalva.senhaEnc)
+    }
+
+    if ([string]::IsNullOrWhiteSpace($remetenteEmail)) {
+        return @{ ok = $false; erro = 'Informe o seu e-mail remetente para enviar.' }
+    }
+    if ([string]::IsNullOrWhiteSpace($senha)) {
+        return @{ ok = $false; erro = 'Informe a senha do seu e-mail (ou senha de aplicativo).' }
+    }
+    if ([string]::IsNullOrWhiteSpace($smtpHost)) {
+        return @{ ok = $false; erro = 'Informe o servidor SMTP do seu provedor de e-mail.' }
+    }
+
+    $paraLista = @()
+    foreach ($p in (([string]$payload.para) -split '[,;]+')) {
+        $t = $p.Trim()
+        if (-not [string]::IsNullOrWhiteSpace($t)) { $paraLista += $t }
+    }
+    if ($paraLista.Count -eq 0) {
+        return @{ ok = $false; erro = 'Informe pelo menos um e-mail de destinatario.' }
+    }
+
+    if ($payload.salvarConfig) {
+        Salvar-EmailConfig @{
+            email    = $remetenteEmail
+            nome     = $remetenteNome
+            smtpHost = $smtpHost
+            smtpPort = $smtpPort
+            smtpSsl  = $smtpSsl
+            senha    = $senha
+        }
+    }
+
+    $mail = $null
+    $client = $null
+    $ms = $null
+    $att = $null
+    try {
+        $mail = New-Object System.Net.Mail.MailMessage
+        if ([string]::IsNullOrWhiteSpace($remetenteNome)) {
+            $mail.From = New-Object System.Net.Mail.MailAddress($remetenteEmail)
+        } else {
+            $mail.From = New-Object System.Net.Mail.MailAddress($remetenteEmail, $remetenteNome, [System.Text.Encoding]::UTF8)
+        }
+        foreach ($dest in $paraLista) {
+            $mail.To.Add($dest)
+        }
+        if ($payload.ccSelf) {
+            $mail.CC.Add($remetenteEmail)
+        }
+        $mail.Subject = if ($payload.assunto) { [string]$payload.assunto } else { 'Pedido Okada Representacoes' }
+        $mail.SubjectEncoding = [System.Text.Encoding]::UTF8
+        $mail.Body = if ($payload.mensagem) { [string]$payload.mensagem } else { '' }
+        $mail.BodyEncoding = [System.Text.Encoding]::UTF8
+        $mail.IsBodyHtml = $false
+
+        if (-not [string]::IsNullOrWhiteSpace($payload.pdfBase64)) {
+            $pdfBytes = [Convert]::FromBase64String([string]$payload.pdfBase64)
+            $ms = New-Object System.IO.MemoryStream(, $pdfBytes)
+            $pdfNome = if ($payload.pdfNome) { [string]$payload.pdfNome } else { 'Pedido.pdf' }
+            $att = New-Object System.Net.Mail.Attachment($ms, $pdfNome, 'application/pdf')
+            $mail.Attachments.Add($att)
+        }
+
+        $client = New-Object System.Net.Mail.SmtpClient($smtpHost, $smtpPort)
+        $client.EnableSsl = $smtpSsl
+        $client.UseDefaultCredentials = $false
+        $client.Credentials = New-Object System.Net.NetworkCredential($remetenteEmail, $senha)
+        $client.Timeout = 25000
+        $client.Send($mail)
+
+        return @{ ok = $true }
+    } catch {
+        $msg = $_.Exception.Message
+        if ($_.Exception.InnerException) {
+            $msg = "$msg ($($_.Exception.InnerException.Message))"
+        }
+        if ($msg -match '5\.7\.|535|Authentication|autentic|credentials|Username and Password') {
+            $msg = "Falha de login no e-mail ($remetenteEmail). Verifique a senha ou se o provedor exige 'Senha de Aplicativo'. Detalhe: $msg"
+        } elseif ($msg -match 'Failure sending mail|Unable to connect|timed out|No such host') {
+            $msg = "Nao foi possivel conectar ao servidor $smtpHost`:$smtpPort. Verifique sua internet ou as configuracoes SMTP. Detalhe: $msg"
+        }
+        return @{ ok = $false; erro = $msg }
+    } finally {
+        if ($att) { try { $att.Dispose() } catch { } }
+        if ($ms) { try { $ms.Dispose() } catch { } }
+        if ($mail) { try { $mail.Dispose() } catch { } }
+        if ($client) { try { $client.Dispose() } catch { } }
     }
 }
 
@@ -501,6 +670,82 @@ while ($listener.IsListening) {
         $context.Response.ContentLength64 = $respBytes.Length
         $context.Response.AddHeader('Cache-Control', 'no-cache, no-store')
         try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        try { $context.Response.OutputStream.Close() } catch { }
+        continue
+    }
+
+    if ($reqPath -eq 'api/email_config' -and $context.Request.HttpMethod -eq 'GET') {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        $cfgEmail = Ler-EmailConfig
+        $respObj = if ($cfgEmail) {
+            @{
+                configurado = $true
+                email       = [string]$cfgEmail.email
+                nome        = [string]$cfgEmail.nome
+                smtpHost    = [string]$cfgEmail.smtpHost
+                smtpPort    = if ($cfgEmail.smtpPort) { [int]$cfgEmail.smtpPort } else { 587 }
+                smtpSsl     = if ($null -ne $cfgEmail.smtpSsl) { [bool]$cfgEmail.smtpSsl } else { $true }
+                temSenha    = (-not [string]::IsNullOrEmpty($cfgEmail.senhaEnc))
+            }
+        } else {
+            @{ configurado = $false }
+        }
+        $respBytes = $utf8NoBom.GetBytes(($respObj | ConvertTo-Json -Compress))
+        $context.Response.ContentType = 'application/json; charset=utf-8'
+        $context.Response.ContentLength64 = $respBytes.Length
+        $context.Response.AddHeader('Cache-Control', 'no-cache, no-store')
+        try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        try { $context.Response.OutputStream.Close() } catch { }
+        continue
+    }
+
+    if ($reqPath -eq 'api/email_config' -and $context.Request.HttpMethod -eq 'POST') {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        try {
+            $reader = New-Object System.IO.StreamReader($context.Request.InputStream, [System.Text.Encoding]::UTF8)
+            $body = $reader.ReadToEnd()
+            $dados = $body | ConvertFrom-Json
+            if ($dados.limpar) {
+                $pCfg = Obter-Caminho-EmailConfig
+                if (Test-Path $pCfg) { Remove-Item $pCfg -Force }
+                $respBytes = $utf8NoBom.GetBytes((@{ ok = $true; configurado = $false } | ConvertTo-Json -Compress))
+            } else {
+                Salvar-EmailConfig $dados
+                $respBytes = $utf8NoBom.GetBytes((@{ ok = $true; configurado = $true } | ConvertTo-Json -Compress))
+            }
+            $context.Response.ContentType = 'application/json; charset=utf-8'
+            $context.Response.ContentLength64 = $respBytes.Length
+            $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length)
+        } catch {
+            $respBytes = $utf8NoBom.GetBytes((@{ ok = $false; erro = $_.Exception.Message } | ConvertTo-Json -Compress))
+            $context.Response.StatusCode = 400
+            $context.Response.ContentType = 'application/json; charset=utf-8'
+            $context.Response.ContentLength64 = $respBytes.Length
+            try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        }
+        try { $context.Response.OutputStream.Close() } catch { }
+        continue
+    }
+
+    if ($reqPath -eq 'api/enviar_email' -and $context.Request.HttpMethod -eq 'POST') {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        try {
+            $reader = New-Object System.IO.StreamReader($context.Request.InputStream, [System.Text.Encoding]::UTF8)
+            $body = $reader.ReadToEnd()
+            $payload = $body | ConvertFrom-Json
+            $resEmail = Enviar-Email-Smtp $payload
+            $respBytes = $utf8NoBom.GetBytes(($resEmail | ConvertTo-Json -Compress))
+            $context.Response.ContentType = 'application/json; charset=utf-8'
+            $context.Response.ContentLength64 = $respBytes.Length
+            $context.Response.AddHeader('Cache-Control', 'no-cache, no-store')
+            $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length)
+        } catch {
+            $respBytes = $utf8NoBom.GetBytes((@{ ok = $false; erro = $_.Exception.Message } | ConvertTo-Json -Compress))
+            $context.Response.StatusCode = 500
+            $context.Response.ContentType = 'application/json; charset=utf-8'
+            $context.Response.ContentLength64 = $respBytes.Length
+            try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        }
         try { $context.Response.OutputStream.Close() } catch { }
         continue
     }
