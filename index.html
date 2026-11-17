@@ -2441,7 +2441,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v58 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v59 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -7753,10 +7753,12 @@
         if (!res.ok) return null;
         return res.json();
       }).then(function (d) {
+        const verAtualTela = (infoVer && infoVer.textContent.match(/okada-v\d+/)) ? infoVer.textContent.match(/okada-v\d+/)[0] : '';
         if (d && d.versao && infoVer) {
-          infoVer.textContent = 'Versão ' + d.versao + (d.motivo === 'pc_principal' ? ' · PC Principal' : ' · Atualizado');
+          infoVer.textContent = 'Versão ' + d.versao + (d.motivo === 'pc_principal' ? ' · PC Principal' : (d.erro ? ' · Erro ao checar' : ' · Atualizado'));
         }
-        if (d && d.atualizado) {
+        const precisaRecarregar = d && (d.atualizado || (d.versao && verAtualTela && d.versao !== verAtualTela));
+        if (precisaRecarregar) {
           try { sessionStorage.setItem('okada_recem_atualizado', d.versao || 'nova versão'); } catch (e) {}
           avisar('Nova atualização (' + (d.versao || 'nova versão') + ') encontrada! Atualizando...');
           const limpar = (window.caches && caches.keys)
@@ -7766,7 +7768,8 @@
             setTimeout(function () { location.reload(); }, 1200);
           });
         } else if (manual) {
-          avisar('O aplicativo já está na versão mais recente (' + ((d && d.versao) || 'atual') + ').');
+          if (d && d.erro) avisar('Não foi possível checar atualização: ' + d.erro);
+          else avisar('O aplicativo já está na versão mais recente (' + ((d && d.versao) || 'atual') + ').');
         }
       }).catch(function () {
         if (infoVer) {

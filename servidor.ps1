@@ -330,14 +330,14 @@ function Verificar-Atualizacao-Nuvem {
                 "Accept"     = "application/vnd.github.v3.raw"
                 "User-Agent" = "OkadaPedidos-Updater"
             }
-            $swRemotoTxt = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoSlug/contents/sw.js" -Headers $headersRaw -Method Get -TimeoutSec 4
+            $swRemotoTxt = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoSlug/contents/sw.js" -Headers $headersRaw -Method Get -TimeoutSec 10
         } catch {
             $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-            $swRemotoTxt = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$repoSlug/main/sw.js?t=$ts" -Method Get -TimeoutSec 4
+            $swRemotoTxt = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$repoSlug/main/sw.js?t=$ts" -Method Get -TimeoutSec 10
         }
 
         if (-not $swRemotoTxt) {
-            return @{ atualizado = $false; motivo = "sem_resposta" }
+            return @{ atualizado = $false; versao = $strVerLocal; erro = "Sem resposta do GitHub" }
         }
 
         $verRemota = Obter-Versao-Sw ([string]$swRemotoTxt)
@@ -351,7 +351,7 @@ function Verificar-Atualizacao-Nuvem {
         $remoteShas = @{}
         try {
             $headersJson = @{ "Accept" = "application/vnd.github+json"; "User-Agent" = "OkadaPedidos-Updater" }
-            $treeResp = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoSlug/git/trees/main" -Headers $headersJson -Method Get -TimeoutSec 6
+            $treeResp = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoSlug/git/trees/main" -Headers $headersJson -Method Get -TimeoutSec 10
             foreach ($item in $treeResp.tree) {
                 if ($item.type -eq 'blob') {
                     $remoteShas[$item.path] = $item.sha
@@ -360,9 +360,6 @@ function Verificar-Atualizacao-Nuvem {
         } catch { }
 
         $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-        $wc = New-Object System.Net.WebClient
-        $wc.Headers.Add("User-Agent", "OkadaPedidos-Updater")
-
         $arquivosBaixar = @('index.html', 'tabelas_padrao.json', 'tabelas_padrao.js', 'dados.js', 'dados.enc', 'sw.js', 'servidor.ps1')
         foreach ($arq in $arquivosBaixar) {
             $destArq = Join-Path $baseDir $arq
@@ -375,18 +372,35 @@ function Verificar-Atualizacao-Nuvem {
             }
 
             $tmpArq = "$destArq.tmp"
-            $urlRaw = "https://raw.githubusercontent.com/$repoSlug/main/$arq?t=$ts"
-            $wc.DownloadFile($urlRaw, $tmpArq)
-            if ((Test-Path $tmpArq) -and ((Get-Item $tmpArq).Length -gt 0)) {
+            $baixou = $false
+            $wc = New-Object System.Net.WebClient
+            try {
+                $wc.Headers.Add("User-Agent", "OkadaPedidos-Updater")
+                $wc.Headers.Add("Accept", "application/vnd.github.v3.raw")
+                $wc.Headers.Add("Cache-Control", "no-cache")
+                $wc.DownloadFile("https://api.github.com/repos/$repoSlug/contents/$arq", $tmpArq)
+                $baixou = $true
+            } catch {
+                try {
+                    $wc2 = New-Object System.Net.WebClient
+                    $wc2.Headers.Add("User-Agent", "OkadaPedidos-Updater")
+                    $wc2.Headers.Add("Cache-Control", "no-cache")
+                    $wc2.DownloadFile("https://raw.githubusercontent.com/$repoSlug/main/$arq?t=$ts", $tmpArq)
+                    $baixou = $true
+                    $wc2.Dispose()
+                } catch { }
+            } finally {
+                $wc.Dispose()
+            }
+            if ($baixou -and (Test-Path $tmpArq) -and ((Get-Item $tmpArq).Length -gt 0)) {
                 Move-Item -Path $tmpArq -Destination $destArq -Force
             }
         }
-        $wc.Dispose()
 
         Write-Host "[OK] Aplicativo atualizado automaticamente para okada-v$verRemota!" -ForegroundColor Green
         return @{ atualizado = $true; versao = "okada-v$verRemota" }
     } catch {
-        return @{ atualizado = $false; erro = $_.Exception.Message }
+        return @{ atualizado = $false; versao = $strVerLocal; erro = $_.Exception.Message }
     }
 }
 
