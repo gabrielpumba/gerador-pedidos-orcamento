@@ -2441,7 +2441,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v56 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v57 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -3230,7 +3230,7 @@
     <header class="tela-topo">
       <button class="voltar" id="convVoltar" type="button" aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-voltar"/></svg></button>
       <div class="passo"><strong class="passo-t" id="convT">Conversor de códigos</strong></div>
-      <button class="conv-topo-bt" id="convBtTabs" type="button"><svg class="ic" aria-hidden="true"><use href="#i-planilha"/></svg><span>Tabelas</span></button>
+      <button class="conv-topo-bt" id="convBtTabs" type="button"><svg class="ic" aria-hidden="true"><use href="#i-planilha"/></svg><span>Tabelas De-Para</span></button>
     </header>
     <div class="conv-miolo">
       <div class="conv-controles">
@@ -13355,9 +13355,25 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       const temTabs = Object.keys(CONV_TABELAS).some(function (k) { return CONV_TABELAS[k] && (CONV_TABELAS[k].itens || []).length > 0; });
       if (!convItensLista.length) {
         convVazio.hidden = false;
-        convVazio.innerHTML = temTabs
-          ? 'Digite um código acima para adicionar um a um, ou toque em <strong>Importar planilha do cliente</strong>.'
-          : 'Nenhuma tabela de conversão carregada ainda.<br>Toque em <strong>Tabelas</strong> no canto superior direito para importar a planilha da fábrica.';
+        convVazio.textContent = '';
+        if (temTabs) {
+          convVazio.innerHTML = 'Digite um código acima para adicionar um a um, ou toque em <strong>Importar planilha do cliente</strong>.';
+        } else {
+          const p = document.createElement('p');
+          p.style.margin = '0 0 12px';
+          p.innerHTML = '<strong>Nenhuma tabela de conversão (De-Para) adicionada ainda.</strong><br>Primeiro, importe a planilha da sua fábrica que tem os códigos equivalentes das concorrentes.';
+          const btAdd = el('button', 'botao', 'ADICIONAR TABELA DE CONVERSÃO');
+          btAdd.type = 'button';
+          btAdd.style.maxWidth = '340px';
+          btAdd.style.margin = '0 auto';
+          btAdd.addEventListener('click', function () {
+            convArquivoModo = 'tabela';
+            convArquivo.value = '';
+            convArquivo.click();
+          });
+          convVazio.appendChild(p);
+          convVazio.appendChild(btAdd);
+        }
       } else {
         convVazio.hidden = true;
       }
