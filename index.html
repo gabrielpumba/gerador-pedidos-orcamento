@@ -1832,6 +1832,118 @@
       margin-top: 6px; border: none; background: none; color: var(--tinta-2); font: inherit;
       font-size: 12px; font-weight: 700; text-decoration: underline; cursor: pointer; align-self: center; padding: 4px 8px;
     }
+
+    /* ---------- Conversor de Códigos (De-Para com Concorrentes) ---------- */
+    .conv-topo-bt {
+      flex: none; display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.14);
+      color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 800; padding: 7px 12px;
+      border-radius: 999px; cursor: pointer; transition: background 0.12s;
+    }
+    .conv-topo-bt:hover { background: rgba(255, 255, 255, 0.26); }
+    .conv-topo-bt .ic { width: 15px; height: 15px; }
+    .conv-miolo { flex: 1; min-height: 0; display: flex; flex-direction: column; max-width: 720px; width: 100%; margin: 0 auto; gap: 10px; }
+    .conv-controles {
+      background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--r-lg); padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .conv-linha-fab { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .conv-select {
+      flex: 1; min-width: 180px; min-height: 44px; padding: 0 12px; border: none; border-radius: var(--r-md);
+      background: #FFFFFF; color: var(--tinta); font: inherit; font-size: 14.5px; font-weight: 800; outline: none;
+    }
+    .conv-bt-cli {
+      flex: none; min-height: 44px; padding: 0 14px; border: 1.5px solid rgba(255, 255, 255, 0.65);
+      border-radius: var(--r-md); background: rgba(255, 255, 255, 0.16); color: #FFFFFF;
+      font: inherit; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+    }
+    .conv-bt-cli:hover { background: rgba(255, 255, 255, 0.26); }
+    .conv-bt-cli .ic { width: 17px; height: 17px; }
+    .conv-conc-bar { display: flex; flex-direction: column; gap: 6px; }
+    .conv-conc-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.92); }
+    .conv-conc-acoes { display: flex; gap: 8px; }
+    .conv-conc-link { background: none; border: none; color: #FFFFFF; font: inherit; font-size: 11.5px; font-weight: 800; text-decoration: underline; cursor: pointer; padding: 0; opacity: 0.9; }
+    .conv-conc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .conv-chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+      border: 1.5px solid #FFFFFF; background: #FFFFFF; color: var(--grena);
+      font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.12s;
+    }
+    .conv-chip.off {
+      background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.72);
+      border-color: rgba(255, 255, 255, 0.35); text-decoration: line-through;
+    }
+    .conv-chip-x { font-size: 13px; line-height: 1; opacity: 0.85; }
+    .conv-busca-wrap { position: relative; }
+    .conv-campo {
+      width: 100%; min-height: 48px; padding: 0 44px 0 14px; border: none; border-radius: var(--r-md);
+      background: #FFFFFF; color: var(--tinta); font: inherit; font-size: 16px; font-weight: 700; outline: none;
+      box-shadow: var(--sombra-1);
+    }
+    .conv-campo::placeholder { font-size: 14px; font-weight: 600; color: var(--tinta-3); }
+    .conv-sug {
+      list-style: none; margin: 6px 0 0; padding: 0; max-height: 220px; overflow-y: auto;
+      display: grid; gap: 6px;
+    }
+    .conv-sug-op {
+      width: 100%; padding: 9px 12px; border: none; border-radius: var(--r-md); background: #FFFFFF;
+      color: var(--tinta); text-align: left; font: inherit; cursor: pointer;
+      display: flex; flex-direction: column; gap: 4px; box-shadow: var(--sombra-1);
+    }
+    .conv-sug-op:active { background: var(--rosa); }
+    .conv-sug-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .conv-sug-top strong { font-size: 15.5px; font-weight: 800; color: var(--grena); }
+    .conv-sug-fab { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--tinta-2); background: var(--rosa); padding: 2px 7px; border-radius: 999px; }
+    .conv-sug-desc { font-size: 12.5px; font-weight: 600; color: var(--tinta-2); line-height: 1.3; }
+    .conv-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .conv-badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 8px;
+      background: #F4ECEF; color: var(--tinta); font-size: 12px; font-weight: 700;
+    }
+    .conv-badge strong { color: var(--grena); font-weight: 800; }
+    .conv-badge.match { background: #FFF3CD; color: #7A5200; border: 1px solid #FFE082; }
+    .conv-lista-rolagem { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 8px; }
+    .conv-lista { list-style: none; display: grid; gap: 8px; margin: 0; padding: 0; }
+    .conv-card {
+      background: #FFFFFF; color: var(--tinta); border-radius: var(--r-lg); padding: 11px 13px;
+      box-shadow: var(--sombra-1); display: flex; flex-direction: column; gap: 6px;
+    }
+    .conv-card.nao-enc { background: #FFF8F8; border: 1.5px dashed #E0A8B0; }
+    .conv-card-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .conv-card-cod { font-size: 17px; font-weight: 800; color: var(--grena); line-height: 1.2; }
+    .conv-card-meta { font-size: 11.5px; font-weight: 700; color: var(--tinta-2); margin-top: 2px; }
+    .conv-card-bts { display: flex; align-items: center; gap: 4px; flex: none; }
+    .conv-card-bt {
+      width: 32px; height: 32px; border: none; border-radius: 50%; background: var(--rosa);
+      color: var(--grena); display: grid; place-items: center; cursor: pointer;
+    }
+    .conv-card-bt .ic { width: 15px; height: 15px; }
+    .conv-card-bt.perigo { background: #FDECEA; color: #B71C1C; }
+    .conv-vazio {
+      text-align: center; padding: 28px 16px; border-radius: var(--r-lg);
+      background: rgba(255, 255, 255, 0.10); color: rgba(255, 255, 255, 0.9);
+      font-size: 14px; font-weight: 600; line-height: 1.5;
+    }
+    .conv-rodape {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+      padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .conv-rodape-bts { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; justify-content: flex-end; }
+    .conv-rodape-bt {
+      min-height: 42px; padding: 0 13px; border: none; border-radius: var(--r-md);
+      background: #FFFFFF; color: var(--grena); font: inherit; font-size: 13px; font-weight: 800;
+      display: inline-flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--sombra-1);
+    }
+    .conv-rodape-bt.sec { background: var(--vidro-2); color: #FFFFFF; box-shadow: none; }
+    .conv-rodape-bt:disabled { opacity: 0.45; cursor: default; }
+    .conv-rodape-bt .ic { width: 16px; height: 16px; }
+    .conv-imp-conc-row {
+      display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
+      padding: 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.12);
+    }
+    .conv-imp-conc-row .campo { min-height: 40px; font-size: 13.5px; }
+    .modal-conv-cli { width: min(94vw, 520px); max-height: 88vh; display: flex; flex-direction: column; padding: 20px 18px 16px; border-radius: 24px; text-align: left; }
+    .modal-conv-cli h3 { margin: 0; font-size: 19px; font-weight: 800; color: var(--grena); }
     .modal-itens-topo {
       display: flex;
       align-items: flex-start;
@@ -2275,6 +2387,7 @@
     <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
     <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
     <symbol id="i-telefone" viewBox="0 0 24 24"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></symbol>
+    <symbol id="i-trocar" viewBox="0 0 24 24"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></symbol>
     <symbol id="i-usuario" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
     <symbol id="i-voltar" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
     <symbol id="i-whatsapp" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></symbol>
@@ -2304,6 +2417,11 @@
           <span class="acao-texto"><strong>Gerar orçamento</strong></span>
           <span class="acao-seta"><svg class="ic" aria-hidden="true"><use href="#i-seta"/></svg></span>
         </button>
+        <button class="acao" id="abrirConversor" type="button">
+          <span class="acao-icone"><svg class="ic" aria-hidden="true"><use href="#i-trocar"/></svg></span>
+          <span class="acao-texto"><strong>Conversor de códigos</strong></span>
+          <span class="acao-seta"><svg class="ic" aria-hidden="true"><use href="#i-seta"/></svg></span>
+        </button>
       </div>
 
       <section class="cadastros" aria-labelledby="rotCad">
@@ -2323,7 +2441,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v55 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v56 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -3107,6 +3225,118 @@
   <input type="file" id="tabArquivo" hidden
          accept=".xlsx,.xls,.csv,.txt,.pdf,text/csv,text/comma-separated-values,application/csv,text/plain,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
 
+  <!-- Conversor de Códigos (De-Para com Concorrentes) -->
+  <section class="tela" id="telaConv" role="dialog" aria-modal="true" aria-labelledby="convT">
+    <header class="tela-topo">
+      <button class="voltar" id="convVoltar" type="button" aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-voltar"/></svg></button>
+      <div class="passo"><strong class="passo-t" id="convT">Conversor de códigos</strong></div>
+      <button class="conv-topo-bt" id="convBtTabs" type="button"><svg class="ic" aria-hidden="true"><use href="#i-planilha"/></svg><span>Tabelas</span></button>
+    </header>
+    <div class="conv-miolo">
+      <div class="conv-controles">
+        <div class="conv-linha-fab">
+          <select class="conv-select" id="convFabSelect" aria-label="Fábrica representada"></select>
+          <button class="conv-bt-cli" id="convBtImpCli" type="button"><svg class="ic" aria-hidden="true"><use href="#i-baixar"/></svg><span>Importar planilha do cliente</span></button>
+        </div>
+        <div class="conv-conc-bar" id="convConcBar" hidden>
+          <div class="conv-conc-topo">
+            <span>Concorrentes visíveis (clique para excluir/incluir):</span>
+            <div class="conv-conc-acoes">
+              <button class="conv-conc-link" id="convConcTodas" type="button">Todas</button>
+              <button class="conv-conc-link" id="convConcNenhuma" type="button">Nenhuma</button>
+            </div>
+          </div>
+          <div class="conv-conc-chips" id="convConcChips"></div>
+        </div>
+        <div class="conv-busca-wrap">
+          <input class="conv-campo" id="convBusca" type="search" placeholder="Digite o código do concorrente, nosso código ou descrição..." autocomplete="off" spellcheck="false">
+        </div>
+        <ul class="conv-sug" id="convSug" hidden></ul>
+      </div>
+      <div class="conv-lista-rolagem">
+        <ul class="conv-lista" id="convLista"></ul>
+        <div class="conv-vazio" id="convVazio"></div>
+      </div>
+      <div class="conv-rodape">
+        <span id="convResumo" style="font-size: 12.5px; font-weight: 800; color: rgba(255,255,255,0.9);">0 itens</span>
+        <div class="conv-rodape-bts">
+          <button class="conv-rodape-bt sec" id="convLimpar" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-lixeira"/></svg><span>Limpar</span></button>
+          <button class="conv-rodape-bt sec" id="convCopiar" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-arquivo"/></svg><span>Copiar</span></button>
+          <button class="conv-rodape-bt" id="convCsv" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-baixar"/></svg><span>Exportar Excel</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gerenciar Tabelas de Conversão -->
+  <section class="tela" id="telaConvTabs" role="dialog" aria-modal="true" aria-labelledby="convTabsT">
+    <header class="tela-topo">
+      <button class="voltar" id="convTabsVoltar" type="button" aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-voltar"/></svg></button>
+      <div class="passo"><strong class="passo-t" id="convTabsT">Tabelas de conversão</strong></div>
+    </header>
+    <div class="conv-miolo">
+      <p class="dica" style="color: rgba(255,255,255,0.92); margin: 0 4px;">Importe as planilhas das suas representadas que contêm os códigos equivalentes das concorrentes (Excel, CSV ou PDF).</p>
+      <div class="conv-lista-rolagem">
+        <ul class="conv-lista" id="convTabsLista"></ul>
+      </div>
+      <div class="rodape-cad">
+        <button class="botao" id="convTabsAdicionar" type="button">IMPORTAR TABELA DE CONVERSÃO</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Importar Tabela de Conversão -->
+  <section class="tela" id="telaConvImp" role="dialog" aria-modal="true" aria-labelledby="convImpT">
+    <header class="tela-topo">
+      <button class="voltar" id="convImpVoltar" type="button" aria-label="Voltar"><svg class="ic" aria-hidden="true"><use href="#i-voltar"/></svg></button>
+      <div class="passo"><strong class="passo-t" id="convImpT">Configurar conversão</strong></div>
+    </header>
+    <div class="rolagem" style="max-width: 680px; width: 100%; margin: 0 auto;">
+      <div class="fcampo">
+        <label class="rotulo" for="convImpFab">Qual é a nossa fábrica (representada)?</label>
+        <select class="campo" id="convImpFab"></select>
+      </div>
+      <div class="fcampo" id="convImpPlanBloco" hidden>
+        <label class="rotulo" for="convImpPlan">Qual aba da planilha?</label>
+        <select class="campo" id="convImpPlan"></select>
+      </div>
+      <div class="fcampo">
+        <span class="rotulo">Prévia do arquivo</span>
+        <div class="prev-caixa"><div class="prev-rolagem" id="convImpPrev" tabindex="-1"></div></div>
+      </div>
+      <div class="fcampo">
+        <label class="rotulo" for="convImpLinha">Os códigos começam na linha</label>
+        <div class="stepper">
+          <button class="step-bt" id="convImpMenos" type="button"><svg class="ic" aria-hidden="true"><use href="#i-menos"/></svg></button>
+          <input class="campo" id="convImpLinha" type="text" inputmode="numeric" maxlength="5">
+          <button class="step-bt" id="convImpMais" type="button"><svg class="ic" aria-hidden="true"><use href="#i-mais"/></svg></button>
+        </div>
+      </div>
+      <div class="fcampo">
+        <label class="rotulo" for="convImpCod">Qual coluna é o CÓDIGO DA NOSSA FÁBRICA?</label>
+        <select class="campo" id="convImpCod"></select>
+      </div>
+      <div class="fcampo">
+        <label class="rotulo" for="convImpDesc">Qual coluna é a DESCRIÇÃO? (opcional)</label>
+        <select class="campo" id="convImpDesc"></select>
+      </div>
+      <div class="fcampo">
+        <div class="imp-preco-cab">
+          <label class="rotulo">Colunas das CONCORRENTES</label>
+          <button class="bt-add-preco" id="convImpAddConc" type="button"><svg class="ic" aria-hidden="true"><use href="#i-mais"/></svg><span>Adicionar concorrente</span></button>
+        </div>
+        <div id="convImpConcsLista" style="display: grid; gap: 8px;"></div>
+      </div>
+      <p class="dica" id="convImpResumo" style="color: #FFFFFF; font-weight: 700;"></p>
+    </div>
+    <div class="rodape-cad">
+      <button class="botao" id="convImpSalvar" type="button" disabled>SALVAR TABELA DE CONVERSÃO</button>
+    </div>
+  </section>
+
+  <input type="file" id="convArquivo" hidden
+         accept=".xlsx,.xls,.csv,.txt,.pdf,text/csv,text/comma-separated-values,application/csv,text/plain,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+
   <div class="dlg-fundo" id="dlgFundo" hidden></div>
   <div class="dlg menu-tab" id="menuTab" role="dialog" aria-modal="true" aria-labelledby="menuTabT" hidden>
     <h3 id="menuTabT">Tabelas de preços</h3>
@@ -3242,6 +3472,36 @@
       <button class="dlg-bt dlg-sim" id="btEmailEnviar" type="button">Enviar e-mail</button>
     </div>
     <button class="email-alt-bt" id="btEmailAppExterno" type="button">Ou salvar PDF e abrir no app de e-mail do Windows</button>
+  </div>
+  <div class="dlg modal-conv-cli" id="modalConvCli" role="dialog" aria-modal="true" aria-labelledby="modalConvCliT" hidden>
+    <h3 id="modalConvCliT">Importar planilha do cliente</h3>
+    <p class="modal-editar-cliente-sub" id="modalConvCliSub">Selecione qual coluna tem os códigos dos concorrentes enviados pelo cliente.</p>
+    <div class="modal-email-rolagem">
+      <div id="convCliPlanBloco" hidden>
+        <label class="modal-editar-cliente-rot" for="convCliPlan">Aba da planilha</label>
+        <select class="email-campo" id="convCliPlan"></select>
+      </div>
+      <div class="prev-caixa" style="max-height: 150px;"><div class="prev-rolagem" id="convCliPrev" style="max-height: 146px;"></div></div>
+      <div class="email-smtp-grade">
+        <div>
+          <label class="modal-editar-cliente-rot" for="convCliCod">Coluna do código concorrente</label>
+          <select class="email-campo" id="convCliCod"></select>
+        </div>
+        <div>
+          <label class="modal-editar-cliente-rot" for="convCliLinha">Linha inicial</label>
+          <input class="email-campo" id="convCliLinha" type="number" min="1" value="2">
+        </div>
+      </div>
+      <div>
+        <label class="modal-editar-cliente-rot" for="convCliQtd">Coluna de quantidade (opcional)</label>
+        <select class="email-campo" id="convCliQtd"></select>
+      </div>
+    </div>
+    <p class="dlg-erro" id="erroConvCli" role="alert" hidden></p>
+    <div class="dlg-bts" style="margin-top: 12px;">
+      <button class="dlg-bt" id="btConvCliCancelar" type="button">Cancelar</button>
+      <button class="dlg-bt dlg-sim" id="btConvCliConverter" type="button">Converter planilha</button>
+    </div>
   </div>
   <div class="dlg" id="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT" aria-describedby="dlgX" hidden>
     <h3 id="dlgT"></h3>
@@ -3742,6 +4002,8 @@
       history.pushState({ t: 'gaveta' }, '');
       aplicar('gaveta');
     }
+    let CONV_TABELAS = {};
+    let convImp = null;
     function fecharGaveta() { history.back(); }
 
     function aplicar(t) {
@@ -3755,12 +4017,14 @@
       const emHist = t === 'historico';
       const emCad = t === 'clientes' || t === 'cliente';
       const emFab = t === 'fabricas' || t === 'fabrica' || t === 'importar' || t === 'tabelas';
+      const emConv = t === 'conversor' || t === 'convTabs' || t === 'convImp';
+      if (t === 'convImp' && !convImp) t = 'convTabs';
       if ((t === 'regiao' || t === 'dist' || t === 'tabprecos' || t === 'prazo' || t === 'produtos' || t === 'desconto' || t === 'obs' || t === 'final') && !representada) t = 'gaveta';
       if ((t === 'dist' || t === 'tabprecos' || t === 'prazo' || t === 'produtos' || t === 'desconto' || t === 'obs' || t === 'final') && !regiao) t = 'regiao';
       if ((t === 'tabprecos' || t === 'produtos' || t === 'desconto' || t === 'obs' || t === 'prazo' || t === 'final') && !distribuidoraEscolhida) t = 'dist';
       if ((t === 'desconto' || t === 'obs' || t === 'prazo' || t === 'final') && !pedido.length) t = 'produtos';   // o desconto, as observações, o prazo e a tela final só abrem com pelo menos um item no pedido
       if (t === 'final' && !prazoFinal && !semPrazo) t = 'prazo';    // o prazo é a última escolha: a tela final só abre depois do OK do prazo (ou do SEGUIR SEM PRAZO)
-      const aberta = t !== 'home' && t !== 'menu' && !emCad && !emFab && !emHist;   // a gaveta é do pedido; os cadastros e o histórico têm as telas deles
+      const aberta = t !== 'home' && t !== 'menu' && !emCad && !emFab && !emHist && !emConv;   // a gaveta é do pedido; os cadastros, histórico e conversor têm as telas deles
       gaveta.style.transform = '';
       gaveta.classList.toggle('aberta', aberta);
       fundo.classList.toggle('aberta', aberta);
@@ -3794,6 +4058,7 @@
       if (emCad) mostrarCad(t); else esconderCad();
       if (emHist) mostrarHist(); else esconderHist();
       if (emFab) mostrarFab(t); else esconderFab();
+      if (emConv) mostrarConv(t); else esconderConv();
       if (t === 'menu') mostrarMenuTab(); else esconderMenuTab();
       if (t === 'home' && gavetaAtrasada) montarGaveta();            // as fábricas mudaram nos cadastros: a gaveta mostra a lista nova
       tela = t;
@@ -3805,6 +4070,7 @@
         if (t === 'home') { indoParaInicio = false; aplicar('home'); } else history.back();
         return;
       }
+      if (modalConvCli && !modalConvCli.hidden) { fecharModalConvCli(); history.pushState({ t: tela }, ''); return; }
       if (modalEnviarEmail && !modalEnviarEmail.hidden) { fecharModalEnviarEmail(); history.pushState({ t: tela }, ''); return; }
       if (modalEditarCliente && !modalEditarCliente.hidden) { fecharModalEditarCliente(); history.pushState({ t: tela }, ''); return; }
       if (modalItensAviso && !modalItensAviso.hidden) { fecharModalItensTabela(); history.pushState({ t: tela }, ''); return; }
@@ -6685,11 +6951,12 @@
     function carregarCadastros() {
       return abrirBanco().then(function (db) {
         BANCO.db = db;
-        return Promise.all([bdTodos('clientes'), bdMeta('regioes'), bdMeta('ultimaCopia'), bdMeta('fabricas')]);
+        return Promise.all([bdTodos('clientes'), bdMeta('regioes'), bdMeta('ultimaCopia'), bdMeta('fabricas'), bdMeta('conversoes')]);
       }).then(function (r) {
         REGISTRADOS = (r[0] || []).map(sanear).filter(Boolean).map(prepararCliente);
         APRENDIDO = r[1] && typeof r[1] === 'object' ? r[1] : {};
         ultimaCopia = Number(r[2]) || 0;
+        CONV_TABELAS = (r[4] && typeof r[4] === 'object' && !Array.isArray(r[4])) ? r[4] : {};
         BANCO.pronto = true;
         recompor();
         carregarFabricas(r[3]);
@@ -7201,7 +7468,7 @@
     cadExcluir.addEventListener('click', pedirExcluir);
 
     // ---------- Cópia de segurança (um arquivo só: clientes, fábricas, logos e tabelas de preços) ----------
-    function temCadastros() { return REGISTRADOS.length > 0 || Object.keys(APRENDIDO).length > 0 || Object.keys(FABRICAS).length > 0; }
+    function temCadastros() { return REGISTRADOS.length > 0 || Object.keys(APRENDIDO).length > 0 || Object.keys(FABRICAS).length > 0 || Object.keys(CONV_TABELAS).length > 0; }
     function desenharCopia() {
       const txt = ultimaCopia ? 'Última cópia salva em ' + dataBR(ultimaCopia) + '.' : 'Nenhuma cópia salva ainda.';
       const alerta = !ultimaCopia && (REGISTRADOS.length > 0 || Object.keys(FABRICAS).length > 0);
@@ -7228,7 +7495,7 @@
         const fabricas = mapaParaGravar(FABRICAS), tabelas = {};
         Object.keys(fabricas).forEach(function (id) { if (fabricas[id].tabs.length && guardadas[id]) tabelas[id] = guardadas[id]; });
         return JSON.stringify({ app: 'okada-pedidos', formato: 3, criado: new Date().toISOString(), clientes: REGISTRADOS.map(paraGravar),
-                                regioesEscolhidas: APRENDIDO, fabricas: fabricas, tabelas: tabelas });
+                                regioesEscolhidas: APRENDIDO, fabricas: fabricas, tabelas: tabelas, conversoes: CONV_TABELAS });
       });
     }
     function salvarCopia() {
@@ -7346,7 +7613,19 @@
         }
         novoMapa[m.id] = m;
       });
-      return { gravar: gravar, novos: novos, atualizados: atualizados, aprendeu: aprendeu, novoMapa: novoMapa, tabsGravar: tabsGravar, fabNovas: fabNovas, fabAtualizadas: fabAtualizadas, tabelas: tabelas };
+      const cIn = o.conversoes && typeof o.conversoes === 'object' && !Array.isArray(o.conversoes) ? o.conversoes : {};
+      let convMudou = 0;
+      const convNovo = Object.assign({}, CONV_TABELAS);
+      Object.keys(cIn).forEach(function (fabId) {
+        const tc = cIn[fabId];
+        if (!tc || !Array.isArray(tc.itens) || !Array.isArray(tc.concorrentes)) return;
+        const atual = convNovo[fabId];
+        if (!atual || (tc.em && (!atual.em || tc.em > atual.em))) {
+          convNovo[fabId] = tc;
+          convMudou++;
+        }
+      });
+      return { gravar: gravar, novos: novos, atualizados: atualizados, aprendeu: aprendeu, novoMapa: novoMapa, tabsGravar: tabsGravar, fabNovas: fabNovas, fabAtualizadas: fabAtualizadas, tabelas: tabelas, convNovo: convNovo, convMudou: convMudou };
     }
     function aplicarObjetoCopia(o, silencioso) {
       if (!o || o.app !== 'okada-pedidos' || !Array.isArray(o.clientes)) {
@@ -7362,7 +7641,11 @@
           ops.push(['put', 'meta', { k: 'fabricas', v: mapaParaGravar(r.novoMapa) }]);
           Object.keys(r.tabsGravar).forEach(function (id) { ops.push(['put', 'meta', { k: 'tab:' + id, v: r.tabsGravar[id] }]); });
         }
+        if (r.convMudou > 0) {
+          ops.push(['put', 'meta', { k: 'conversoes', v: r.convNovo }]);
+        }
         return bdLote(ops).then(function () {                  // tudo numa transação só: ou a cópia entra inteira ou nada muda
+          if (r.convMudou > 0) CONV_TABELAS = r.convNovo;
           r.gravar.forEach(function (n) {
             const pronto = prepararCliente(n);
             const i = REGISTRADOS.findIndex(function (d) { return d.id === n.id; });
@@ -10643,6 +10926,7 @@
     $('menuGer').addEventListener('click', function () { abrirTabelas(null); });
     $('menuFechar').addEventListener('click', function () { if (tela === 'menu') history.back(); });
     dlgFundo.addEventListener('click', function () {
+      if (modalConvCli && !modalConvCli.hidden) { fecharModalConvCli(); return; }
       if (modalEnviarEmail && !modalEnviarEmail.hidden) { fecharModalEnviarEmail(); return; }
       if (modalEditarCliente && !modalEditarCliente.hidden) { fecharModalEditarCliente(); return; }
       if (modalItensAviso && !modalItensAviso.hidden) { fecharModalItensTabela(); return; }
@@ -10650,6 +10934,11 @@
       if (tela === 'menu') history.back();
     });
     window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modalConvCli && !modalConvCli.hidden) {
+        e.preventDefault();
+        fecharModalConvCli();
+        return;
+      }
       if (e.key === 'Escape' && modalEnviarEmail && !modalEnviarEmail.hidden) {
         e.preventDefault();
         fecharModalEnviarEmail();
@@ -12831,6 +13120,760 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       fecharVP();
       carregarRegistroNoPedido(reg);
     });
+
+    // ---------- Conversor de Códigos (De-Para com Concorrentes) ----------
+    const telaConv = $('telaConv'), telaConvTabs = $('telaConvTabs'), telaConvImp = $('telaConvImp');
+    const convFabSelect = $('convFabSelect'), convBtImpCli = $('convBtImpCli'), convConcBar = $('convConcBar'), convConcChips = $('convConcChips');
+    const convBusca = $('convBusca'), convSug = $('convSug'), convLista = $('convLista'), convVazio = $('convVazio');
+    const convResumo = $('convResumo'), convLimpar = $('convLimpar'), convCopiar = $('convCopiar'), convCsv = $('convCsv');
+    const convTabsLista = $('convTabsLista'), convArquivo = $('convArquivo');
+    const convImpFab = $('convImpFab'), convImpPlanBloco = $('convImpPlanBloco'), convImpPlan = $('convImpPlan');
+    const convImpPrev = $('convImpPrev'), convImpLinha = $('convImpLinha'), convImpCod = $('convImpCod'), convImpDesc = $('convImpDesc');
+    const convImpConcsLista = $('convImpConcsLista'), convImpResumo = $('convImpResumo'), convImpSalvar = $('convImpSalvar');
+    const modalConvCli = $('modalConvCli'), convCliPlanBloco = $('convCliPlanBloco'), convCliPlan = $('convCliPlan');
+    const convCliPrev = $('convCliPrev'), convCliCod = $('convCliCod'), convCliLinha = $('convCliLinha'), convCliQtd = $('convCliQtd'), erroConvCli = $('erroConvCli');
+
+    let convFabAtual = '';
+    let convConcsOcultas = {}; // { 'CORTECO': true }
+    let convItensLista = [];   // [{ id, fabId, fabNome, cod, desc, eq, qtd, buscaOrig, naoEncontrado }]
+    let convArquivoModo = 'tabela'; // 'tabela' | 'cliente'
+    let convCliDados = null;   // { planilhas, p, linhas, an, colCod, colQtd, linha }
+
+    function normCodConv(s) {
+      return normalizar(String(s || '')).replace(/[^a-z0-9]/g, '');
+    }
+    function tokensCelulaConv(val) {
+      return String(val == null ? '' : val).split(/[\/;,\n]+/).map(function (x) { return x.trim(); }).filter(Boolean);
+    }
+    function mostrarConv(t) {
+      if (telaConv) {
+        telaConv.classList.toggle('aberta', t === 'conversor');
+        telaConv.setAttribute('aria-hidden', t !== 'conversor' ? 'true' : 'false');
+      }
+      if (telaConvTabs) {
+        telaConvTabs.classList.toggle('aberta', t === 'convTabs');
+        telaConvTabs.setAttribute('aria-hidden', t !== 'convTabs' ? 'true' : 'false');
+      }
+      if (telaConvImp) {
+        telaConvImp.classList.toggle('aberta', t === 'convImp');
+        telaConvImp.setAttribute('aria-hidden', t !== 'convImp' ? 'true' : 'false');
+      }
+      if (t === 'conversor') prepararConversor();
+      if (t === 'convTabs') renderizarConvTabs();
+      if (t === 'convImp') renderizarConvImp(true);
+    }
+    function esconderConv() {
+      [telaConv, telaConvTabs, telaConvImp].forEach(function (elT) {
+        if (elT) { elT.classList.remove('aberta'); elT.setAttribute('aria-hidden', 'true'); }
+      });
+    }
+
+    function concorrentesDisponiveis() {
+      const lista = [], vistos = {};
+      if (convFabAtual && CONV_TABELAS[convFabAtual]) {
+        (CONV_TABELAS[convFabAtual].concorrentes || []).forEach(function (c) {
+          if (!vistos[c]) { vistos[c] = true; lista.push(c); }
+        });
+      } else {
+        Object.keys(CONV_TABELAS).forEach(function (fid) {
+          (CONV_TABELAS[fid].concorrentes || []).forEach(function (c) {
+            if (!vistos[c]) { vistos[c] = true; lista.push(c); }
+          });
+        });
+        convItensLista.forEach(function (it) {
+          if (it.eq) Object.keys(it.eq).forEach(function (c) {
+            if (!vistos[c]) { vistos[c] = true; lista.push(c); }
+          });
+        });
+      }
+      return lista;
+    }
+
+    function prepararConversor() {
+      const comConv = Object.keys(CONV_TABELAS).filter(function (fid) { return CONV_TABELAS[fid] && (CONV_TABELAS[fid].itens || []).length > 0; });
+      convFabSelect.textContent = '';
+      if (!comConv.length) {
+        const op0 = document.createElement('option');
+        op0.value = '';
+        op0.textContent = 'Nenhuma tabela de conversão importada';
+        convFabSelect.appendChild(op0);
+        convFabAtual = '';
+      } else {
+        if (comConv.length > 1) {
+          const opAll = document.createElement('option');
+          opAll.value = '';
+          opAll.textContent = 'Todas as fábricas (' + comConv.length + ')';
+          convFabSelect.appendChild(opAll);
+        }
+        REPS.forEach(function (r) {
+          const tb = CONV_TABELAS[r.id];
+          if (!tb || !tb.itens || !tb.itens.length) return;
+          const op = document.createElement('option');
+          op.value = r.id;
+          op.textContent = r.nome + ' · ' + plural(tb.itens.length, 'item', 'itens');
+          convFabSelect.appendChild(op);
+        });
+        if (convFabAtual && !CONV_TABELAS[convFabAtual]) convFabAtual = '';
+        if (!convFabAtual && comConv.length === 1) convFabAtual = comConv[0];
+        convFabSelect.value = convFabAtual;
+      }
+      renderizarChipsConcorrentes();
+      renderizarBuscaConv();
+      renderizarListaConv();
+    }
+
+    function renderizarChipsConcorrentes() {
+      const concs = concorrentesDisponiveis();
+      if (!concs.length) {
+        convConcBar.hidden = true;
+        return;
+      }
+      convConcBar.hidden = false;
+      convConcChips.textContent = '';
+      concs.forEach(function (nome) {
+        const off = !!convConcsOcultas[nome];
+        const bt = el('button', 'conv-chip' + (off ? ' off' : ''));
+        bt.type = 'button';
+        bt.appendChild(document.createTextNode(nome + ' '));
+        bt.appendChild(el('span', 'conv-chip-x', off ? '+' : '✕'));
+        bt.title = off ? 'Clique para incluir ' + nome : 'Clique para excluir ' + nome;
+        bt.addEventListener('click', function () {
+          if (convConcsOcultas[nome]) delete convConcsOcultas[nome];
+          else convConcsOcultas[nome] = true;
+          renderizarChipsConcorrentes();
+          renderizarBuscaConv();
+          renderizarListaConv();
+        });
+        convConcChips.appendChild(bt);
+      });
+    }
+
+    function concsAtivasLista(concs) {
+      return (concs || concorrentesDisponiveis()).filter(function (c) { return !convConcsOcultas[c]; });
+    }
+
+    function buscarItensConversor(termoRaw) {
+      const q = normCodConv(termoRaw);
+      const qTxt = normalizar(termoRaw || '').trim();
+      if (!q && qTxt.length < 2) return [];
+      const fids = convFabAtual ? [convFabAtual] : Object.keys(CONV_TABELAS);
+      const res = [];
+      fids.forEach(function (fid) {
+        const tb = CONV_TABELAS[fid];
+        if (!tb || !tb.itens) return;
+        const rep = repPorId(fid);
+        const fabNome = rep ? rep.nome : fid;
+        const ativas = concsAtivasLista(tb.concorrentes);
+        for (let i = 0; i < tb.itens.length; i++) {
+          const it = tb.itens[i];
+          let pts = 0;
+          let matchConc = '';
+          if (q && normCodConv(it.cod) === q) pts = 100;
+          else if (q && normCodConv(it.cod).indexOf(q) === 0) pts = 70;
+          for (let j = 0; j < ativas.length; j++) {
+            const c = ativas[j];
+            const val = it.eq && it.eq[c];
+            if (!val) continue;
+            const toks = tokensCelulaConv(val);
+            for (let k = 0; k < toks.length; k++) {
+              const nt = normCodConv(toks[k]);
+              if (q && nt === q) { pts = Math.max(pts, 95); matchConc = c; break; }
+              if (q && nt.indexOf(q) !== -1) { pts = Math.max(pts, 65); if (!matchConc) matchConc = c; }
+            }
+          }
+          if (!pts && qTxt.length >= 2 && normalizar(it.desc || '').indexOf(qTxt) !== -1) pts = 40;
+          if (!pts && q && normCodConv(it.cod).indexOf(q) !== -1) pts = 50;
+          if (pts > 0) {
+            res.push({ pts: pts, fabId: fid, fabNome: fabNome, item: it, matchConc: matchConc });
+            if (res.length >= 40) break;
+          }
+        }
+      });
+      res.sort(function (a, b) { return b.pts - a.pts; });
+      return res.slice(0, 20);
+    }
+
+    function renderizarBuscaConv() {
+      const val = (convBusca.value || '').trim();
+      if (!val) {
+        convSug.hidden = true;
+        convSug.textContent = '';
+        return;
+      }
+      const achados = buscarItensConversor(val);
+      convSug.textContent = '';
+      if (!achados.length) {
+        convSug.hidden = false;
+        const li = document.createElement('li');
+        li.appendChild(el('div', 'conv-vazio', 'Nenhum item encontrado para "' + val + '".'));
+        convSug.appendChild(li);
+        return;
+      }
+      convSug.hidden = false;
+      achados.forEach(function (m) {
+        const li = document.createElement('li');
+        const bt = el('button', 'conv-sug-op');
+        bt.type = 'button';
+        const top = el('div', 'conv-sug-top');
+        top.appendChild(el('strong', '', m.item.cod));
+        top.appendChild(el('span', 'conv-sug-fab', m.fabNome));
+        bt.appendChild(top);
+        if (m.item.desc) bt.appendChild(el('div', 'conv-sug-desc', m.item.desc));
+        const badges = el('div', 'conv-badges');
+        const ativas = concsAtivasLista(CONV_TABELAS[m.fabId].concorrentes);
+        ativas.forEach(function (c) {
+          const v = m.item.eq && m.item.eq[c];
+          if (!v) return;
+          const b = el('span', 'conv-badge' + (m.matchConc === c ? ' match' : ''));
+          b.appendChild(el('strong', '', c + ':'));
+          b.appendChild(document.createTextNode(' ' + v));
+          badges.appendChild(b);
+        });
+        if (badges.childNodes.length) bt.appendChild(badges);
+        bt.addEventListener('click', function () {
+          adicionarItemConv({
+            fabId: m.fabId, fabNome: m.fabNome,
+            cod: m.item.cod, desc: m.item.desc, eq: m.item.eq,
+            qtd: '', buscaOrig: val, naoEncontrado: false
+          });
+          convBusca.value = '';
+          renderizarBuscaConv();
+          convBusca.focus();
+        });
+        li.appendChild(bt);
+        convSug.appendChild(li);
+      });
+    }
+
+    function adicionarItemConv(entry) {
+      convItensLista.unshift(Object.assign({ id: Date.now() + '_' + Math.random().toString(36).slice(2, 7) }, entry));
+      renderizarListaConv();
+    }
+
+    function renderizarListaConv() {
+      convLista.textContent = '';
+      const temTabs = Object.keys(CONV_TABELAS).some(function (k) { return CONV_TABELAS[k] && (CONV_TABELAS[k].itens || []).length > 0; });
+      if (!convItensLista.length) {
+        convVazio.hidden = false;
+        convVazio.innerHTML = temTabs
+          ? 'Digite um código acima para adicionar um a um, ou toque em <strong>Importar planilha do cliente</strong>.'
+          : 'Nenhuma tabela de conversão carregada ainda.<br>Toque em <strong>Tabelas</strong> no canto superior direito para importar a planilha da fábrica.';
+      } else {
+        convVazio.hidden = true;
+      }
+
+      const ativasGlobal = concsAtivasLista();
+      convItensLista.forEach(function (it, idx) {
+        const li = el('li', 'conv-card' + (it.naoEncontrado ? ' nao-enc' : ''));
+        const topo = el('div', 'conv-card-topo');
+        const esq = el('div', '');
+        esq.style.minWidth = '0';
+        esq.appendChild(el('div', 'conv-card-cod', it.naoEncontrado ? ('Não encontrado: ' + it.buscaOrig) : it.cod));
+        const metaPartes = [];
+        if (it.fabNome) metaPartes.push(it.fabNome);
+        if (it.qtd) metaPartes.push('Qtd: ' + it.qtd);
+        if (it.buscaOrig && !it.naoEncontrado) metaPartes.push('Busca: ' + it.buscaOrig);
+        if (metaPartes.length) esq.appendChild(el('div', 'conv-card-meta', metaPartes.join(' · ')));
+        if (it.desc) esq.appendChild(el('div', 'conv-sug-desc', it.desc));
+        topo.appendChild(esq);
+
+        const bts = el('div', 'conv-card-bts');
+        if (!it.naoEncontrado) {
+          const btCop = el('button', 'conv-card-bt');
+          btCop.type = 'button'; btCop.title = 'Copiar código';
+          btCop.appendChild(ic('arquivo'));
+          btCop.addEventListener('click', function () { copiarTextoSimples(it.cod); });
+          bts.appendChild(btCop);
+        }
+        const btRem = el('button', 'conv-card-bt perigo');
+        btRem.type = 'button'; btRem.title = 'Remover';
+        btRem.appendChild(ic('fechar'));
+        btRem.addEventListener('click', function () {
+          convItensLista.splice(idx, 1);
+          renderizarListaConv();
+        });
+        bts.appendChild(btRem);
+        topo.appendChild(bts);
+        li.appendChild(topo);
+
+        if (!it.naoEncontrado && it.eq) {
+          const badges = el('div', 'conv-badges');
+          const concs = (CONV_TABELAS[it.fabId] && CONV_TABELAS[it.fabId].concorrentes) || ativasGlobal;
+          concs.forEach(function (c) {
+            if (convConcsOcultas[c]) return;
+            const v = it.eq[c];
+            if (!v) return;
+            const b = el('span', 'conv-badge');
+            b.appendChild(el('strong', '', c + ':'));
+            b.appendChild(document.createTextNode(' ' + v));
+            badges.appendChild(b);
+          });
+          if (badges.childNodes.length) li.appendChild(badges);
+        }
+        convLista.appendChild(li);
+      });
+
+      const enc = convItensLista.filter(function (x) { return !x.naoEncontrado; }).length;
+      const nEnc = convItensLista.length - enc;
+      convResumo.textContent = plural(enc, 'convertido', 'convertidos') + (nEnc ? ' · ' + nEnc + ' não encontrado(s)' : '');
+      convLimpar.disabled = convItensLista.length === 0;
+      convCopiar.disabled = convItensLista.length === 0;
+      convCsv.disabled = convItensLista.length === 0;
+    }
+
+    function textoExportacaoConv() {
+      const ativas = concsAtivasLista();
+      const linhas = [];
+      convItensLista.forEach(function (it) {
+        if (it.naoEncontrado) {
+          linhas.push('[NÃO ENCONTRADO] ' + it.buscaOrig + (it.qtd ? ' (Qtd: ' + it.qtd + ')' : ''));
+          return;
+        }
+        const eqTxt = ativas.map(function (c) {
+          const v = it.eq && it.eq[c];
+          return v ? (c + ': ' + v) : '';
+        }).filter(Boolean).join(' | ');
+        linhas.push(it.cod + (it.qtd ? ' (Qtd: ' + it.qtd + ')' : '') + (it.desc ? ' — ' + it.desc : '') + (eqTxt ? ' [' + eqTxt + ']' : ''));
+      });
+      return linhas.join('\n');
+    }
+
+    function exportarCsvConv() {
+      const ativas = concsAtivasLista();
+      function escCsv(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+      const cab = ['Fábrica', 'Nosso Código', 'Descrição', 'Qtd', 'Código Buscado'].concat(ativas);
+      const linhas = [cab.map(escCsv).join(';')];
+      convItensLista.forEach(function (it) {
+        const row = [
+          it.fabNome || '',
+          it.naoEncontrado ? 'NÃO ENCONTRADO' : it.cod,
+          it.desc || '',
+          it.qtd || '',
+          it.buscaOrig || ''
+        ];
+        ativas.forEach(function (c) { row.push((it.eq && it.eq[c]) || ''); });
+        linhas.push(row.map(escCsv).join(';'));
+      });
+      const bom = '\uFEFF' + linhas.join('\r\n');
+      const blob = new Blob([bom], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'conversao-codigos-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+      avisar('Planilha Excel (CSV) exportada!');
+    }
+
+    // ---- Gerenciar & Importar Tabelas de Conversão ----
+    function gravarConvTabelas() {
+      return bdMetaGravar('conversoes', CONV_TABELAS);
+    }
+
+    function renderizarConvTabs() {
+      convTabsLista.textContent = '';
+      let qtd = 0;
+      REPS.forEach(function (r) {
+        const tb = CONV_TABELAS[r.id];
+        if (!tb || !tb.itens || !tb.itens.length) return;
+        qtd++;
+        const li = el('li', 'conv-card');
+        const topo = el('div', 'conv-card-topo');
+        const info = el('div', '');
+        info.appendChild(el('div', 'conv-card-cod', r.nome));
+        info.appendChild(el('div', 'conv-card-meta', plural(tb.itens.length, 'item', 'itens') + ' · Concorrentes: ' + (tb.concorrentes || []).join(', ')));
+        topo.appendChild(info);
+        const bts = el('div', 'conv-card-bts');
+        const btEx = el('button', 'conv-card-bt perigo');
+        btEx.type = 'button'; btEx.title = 'Excluir tabela de conversão';
+        btEx.appendChild(ic('lixeira'));
+        btEx.addEventListener('click', function () {
+          confirmar({ titulo: 'Excluir tabela de conversão?', texto: 'A tabela De-Para de ' + r.nome + ' será removida.', sim: 'Excluir', nao: 'Cancelar', perigo: true }).then(function (ok) {
+            if (!ok) return;
+            delete CONV_TABELAS[r.id];
+            gravarConvTabelas().then(function () {
+              avisar('Tabela de conversão excluída.');
+              renderizarConvTabs();
+            });
+          });
+        });
+        bts.appendChild(btEx);
+        topo.appendChild(bts);
+        li.appendChild(topo);
+        convTabsLista.appendChild(li);
+      });
+      if (!qtd) {
+        const li = document.createElement('li');
+        li.appendChild(el('div', 'conv-vazio', 'Nenhuma tabela de conversão cadastrada ainda. Toque no botão abaixo para importar uma planilha.'));
+        convTabsLista.appendChild(li);
+      }
+    }
+
+    function detectarPlanilhaConv(linhas) {
+      const an = analisarPlanilha(linhas);
+      let colCod = -1, colDesc = -1;
+      an.colunas.forEach(function (c, k) {
+        if (c.papel === 'cod' && colCod < 0) colCod = k;
+        else if (c.papel === 'desc' && colDesc < 0) colDesc = k;
+      });
+      if (colCod < 0 && an.ncols > 0) colCod = 0;
+      const concs = [];
+      for (let c = 0; c < an.ncols; c++) {
+        if (c === colCod || c === colDesc) continue;
+        const tit = (an.colunas[c] && an.colunas[c].titulo) || ('Concorrente ' + (concs.length + 1));
+        if (!an.colunas[c] || an.colunas[c].n === 0) continue;
+        concs.push({ col: c, nome: tit.slice(0, 35) });
+      }
+      return { an: an, inicio: an.inicio, colCod: colCod, colDesc: colDesc, concs: concs };
+    }
+
+    function preencherSelectColsConv(sel, an, vazioTxt, valAtual) {
+      sel.textContent = '';
+      if (vazioTxt) {
+        const o0 = document.createElement('option');
+        o0.value = '-1'; o0.textContent = vazioTxt;
+        sel.appendChild(o0);
+      }
+      an.colunas.forEach(function (c, k) {
+        const o = document.createElement('option');
+        o.value = String(k);
+        o.textContent = 'Coluna ' + c.letra + (c.titulo ? ' (' + c.titulo + ')' : '');
+        sel.appendChild(o);
+      });
+      sel.value = String(valAtual >= 0 ? valAtual : (vazioTxt ? -1 : 0));
+    }
+
+    function desenharPreviaSimples(container, linhas, inicio, colsDestaque) {
+      container.textContent = '';
+      const tb = document.createElement('table');
+      tb.className = 'prev';
+      const corpo = tb.createTBody();
+      const de = Math.max(0, inicio - 2), ate = Math.min(linhas.length, inicio + 6);
+      for (let i = de; i < ate; i++) {
+        const tr = corpo.insertRow();
+        if (i < inicio) tr.className = 'fora';
+        else if (i === inicio) tr.className = 'inicio';
+        const td0 = tr.insertCell(); td0.className = 'n'; td0.textContent = String(i + 1);
+        const l = linhas[i] || [];
+        const maxC = Math.max(l.length, 6);
+        for (let c = 0; c < maxC; c++) {
+          const td = tr.insertCell();
+          if (colsDestaque && colsDestaque[c]) td.className = colsDestaque[c];
+          td.textContent = celulaPrevia(l[c]);
+        }
+      }
+      container.appendChild(tb);
+    }
+
+    function renderizarConvImp(tudo) {
+      if (!convImp) return;
+      if (tudo) {
+        convImpFab.textContent = '';
+        REPS.forEach(function (r) {
+          const o = document.createElement('option');
+          o.value = r.id; o.textContent = r.nome;
+          convImpFab.appendChild(o);
+        });
+        convImpFab.value = convImp.fabId || (REPS[0] ? REPS[0].id : '');
+        convImp.fabId = convImpFab.value;
+
+        convImpPlanBloco.hidden = convImp.planilhas.length < 2;
+        if (convImp.planilhas.length > 1) {
+          convImpPlan.textContent = '';
+          convImp.planilhas.forEach(function (p, i) {
+            const o = document.createElement('option');
+            o.value = String(i); o.textContent = p.nome;
+            convImpPlan.appendChild(o);
+          });
+          convImpPlan.value = String(convImp.p);
+        }
+      }
+      const pl = convImp.planilhas[convImp.p];
+      const det = convImp.det;
+      convImpLinha.value = String(det.inicio + 1);
+      preencherSelectColsConv(convImpCod, det.an, null, det.colCod);
+      preencherSelectColsConv(convImpDesc, det.an, 'Não usar', det.colDesc);
+
+      convImpConcsLista.textContent = '';
+      det.concs.forEach(function (cc, idx) {
+        const row = el('div', 'conv-imp-conc-row');
+        const sel = document.createElement('select');
+        sel.className = 'campo';
+        preencherSelectColsConv(sel, det.an, 'Escolha a coluna…', cc.col);
+        sel.addEventListener('change', function () {
+          cc.col = parseInt(sel.value, 10);
+          if (cc.col >= 0 && det.an.colunas[cc.col] && det.an.colunas[cc.col].titulo && /^Concorrente \d+$/.test(cc.nome)) {
+            cc.nome = det.an.colunas[cc.col].titulo.slice(0, 35);
+          }
+          renderizarConvImp(false);
+        });
+        const inp = document.createElement('input');
+        inp.className = 'campo'; inp.type = 'text'; inp.maxLength = 35;
+        inp.placeholder = 'Nome da concorrente'; inp.value = cc.nome;
+        inp.addEventListener('input', function () { cc.nome = inp.value; });
+        const btRem = el('button', 'conv-card-bt perigo');
+        btRem.type = 'button'; btRem.appendChild(ic('lixeira'));
+        btRem.addEventListener('click', function () {
+          det.concs.splice(idx, 1);
+          renderizarConvImp(false);
+        });
+        row.appendChild(sel); row.appendChild(inp); row.appendChild(btRem);
+        convImpConcsLista.appendChild(row);
+      });
+
+      const dest = {};
+      if (det.colCod >= 0) dest[det.colCod] = 'p-cod';
+      if (det.colDesc >= 0) dest[det.colDesc] = 'p-desc';
+      det.concs.forEach(function (cc) { if (cc.col >= 0) dest[cc.col] = 'p-preco'; });
+      desenharPreviaSimples(convImpPrev, pl.linhas, det.inicio, dest);
+
+      let validos = 0;
+      for (let i = det.inicio; i < pl.linhas.length; i++) {
+        const l = pl.linhas[i] || [];
+        if (det.colCod >= 0 && String(l[det.colCod] == null ? '' : l[det.colCod]).trim()) validos++;
+      }
+      const concsVal = det.concs.filter(function (c) { return c.col >= 0 && c.nome.trim(); });
+      convImpResumo.textContent = plural(validos, 'item encontrado', 'itens encontrados') + ' · ' + plural(concsVal.length, 'concorrente', 'concorrentes');
+      convImpSalvar.disabled = !convImp.fabId || det.colCod < 0 || !concsVal.length || !validos;
+    }
+
+    // ---- Importar Planilha do Cliente (só códigos dos concorrentes) ----
+    function abrirModalConvCli(res) {
+      convCliDados = {
+        planilhas: res.planilhas, p: 0,
+        det: detectarPlanilhaConv(res.planilhas[0].linhas),
+        colCod: 0, colQtd: -1, linha: 1
+      };
+      const an = convCliDados.det.an;
+      convCliDados.colCod = convCliDados.det.colCod >= 0 ? convCliDados.det.colCod : 0;
+      convCliDados.linha = convCliDados.det.inicio + 1;
+      an.colunas.forEach(function (c, k) {
+        if (k !== convCliDados.colCod && /\b(qtd|qtde|quant|quantidade|un|unid)\b/i.test(c.titulo || '')) convCliDados.colQtd = k;
+      });
+      convCliPlanBloco.hidden = res.planilhas.length < 2;
+      if (res.planilhas.length > 1) {
+        convCliPlan.textContent = '';
+        res.planilhas.forEach(function (p, i) {
+          const o = document.createElement('option');
+          o.value = String(i); o.textContent = p.nome;
+          convCliPlan.appendChild(o);
+        });
+      }
+      atualizarModalConvCli();
+      erroConvCli.hidden = true;
+      dlgFundo.hidden = false;
+      modalConvCli.hidden = false;
+    }
+    function atualizarModalConvCli() {
+      if (!convCliDados) return;
+      const pl = convCliDados.planilhas[convCliDados.p];
+      const an = convCliDados.det.an;
+      preencherSelectColsConv(convCliCod, an, null, convCliDados.colCod);
+      preencherSelectColsConv(convCliQtd, an, 'Não usar', convCliDados.colQtd);
+      convCliLinha.value = String(convCliDados.linha);
+      const dest = {};
+      if (convCliDados.colCod >= 0) dest[convCliDados.colCod] = 'p-cod';
+      if (convCliDados.colQtd >= 0) dest[convCliDados.colQtd] = 'p-preco';
+      desenharPreviaSimples(convCliPrev, pl.linhas, Math.max(0, convCliDados.linha - 1), dest);
+    }
+    function fecharModalConvCli() {
+      if (!modalConvCli || modalConvCli.hidden) return;
+      modalConvCli.hidden = true;
+      if (!dlgAberto && (!menuTab || menuTab.hidden) && (!modalItensAviso || modalItensAviso.hidden) && !modalVariacoesAberto && (!modalEditarCliente || modalEditarCliente.hidden) && (!modalEnviarEmail || modalEnviarEmail.hidden)) {
+        dlgFundo.hidden = true;
+      }
+    }
+
+    function converterPlanilhaCliente() {
+      if (!convCliDados) return;
+      const pl = convCliDados.planilhas[convCliDados.p];
+      const ini = Math.max(0, (parseInt(convCliLinha.value, 10) || 1) - 1);
+      const cCod = parseInt(convCliCod.value, 10);
+      const cQtd = parseInt(convCliQtd.value, 10);
+      let convertidos = 0, naoEncontrados = 0;
+      const novos = [];
+
+      for (let i = ini; i < pl.linhas.length; i++) {
+        const l = pl.linhas[i] || [];
+        const rawCod = String(l[cCod] == null ? '' : l[cCod]).trim();
+        if (!rawCod) continue;
+        const qtdVal = cQtd >= 0 ? String(l[cQtd] == null ? '' : l[cQtd]).trim() : '';
+        const achados = buscarItensConversor(rawCod).filter(function (m) { return m.pts >= 65; });
+        if (achados.length > 0) {
+          const m = achados[0];
+          novos.push({
+            id: Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6),
+            fabId: m.fabId, fabNome: m.fabNome,
+            cod: m.item.cod, desc: m.item.desc, eq: m.item.eq,
+            qtd: qtdVal, buscaOrig: rawCod, naoEncontrado: false
+          });
+          convertidos++;
+        } else {
+          novos.push({
+            id: Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6),
+            fabId: '', fabNome: '', cod: '', desc: '', eq: null,
+            qtd: qtdVal, buscaOrig: rawCod, naoEncontrado: true
+          });
+          naoEncontrados++;
+        }
+      }
+      if (!novos.length) {
+        erroConvCli.textContent = 'Nenhum código encontrado nesta coluna a partir da linha ' + (ini + 1) + '.';
+        erroConvCli.hidden = false;
+        return;
+      }
+      convItensLista = novos.concat(convItensLista);
+      fecharModalConvCli();
+      renderizarListaConv();
+      avisar(plural(convertidos, 'código convertido', 'códigos convertidos') + (naoEncontrados ? ' · ' + naoEncontrados + ' não encontrado(s)' : '') + '.');
+    }
+
+    // ---- Eventos do Conversor ----
+    if ($('abrirConversor')) {
+      $('abrirConversor').addEventListener('click', function () {
+        history.pushState({ t: 'conversor' }, '');
+        aplicar('conversor');
+      });
+    }
+    if ($('convVoltar')) $('convVoltar').addEventListener('click', function () { history.back(); });
+    if ($('convBtTabs')) $('convBtTabs').addEventListener('click', function () { history.pushState({ t: 'convTabs' }, ''); aplicar('convTabs'); });
+    if ($('convTabsVoltar')) $('convTabsVoltar').addEventListener('click', function () { history.back(); });
+    if ($('convImpVoltar')) $('convImpVoltar').addEventListener('click', function () { history.back(); });
+
+    if (convFabSelect) convFabSelect.addEventListener('change', function () {
+      convFabAtual = convFabSelect.value;
+      renderizarChipsConcorrentes();
+      renderizarBuscaConv();
+    });
+    if ($('convConcTodas')) $('convConcTodas').addEventListener('click', function () {
+      convConcsOcultas = {};
+      renderizarChipsConcorrentes();
+      renderizarBuscaConv();
+      renderizarListaConv();
+    });
+    if ($('convConcNenhuma')) $('convConcNenhuma').addEventListener('click', function () {
+      concorrentesDisponiveis().forEach(function (c) { convConcsOcultas[c] = true; });
+      renderizarChipsConcorrentes();
+      renderizarBuscaConv();
+      renderizarListaConv();
+    });
+    if (convBusca) convBusca.addEventListener('input', renderizarBuscaConv);
+    if (convLimpar) convLimpar.addEventListener('click', function () { convItensLista = []; renderizarListaConv(); });
+    if (convCopiar) convCopiar.addEventListener('click', function () { copiarTextoSimples(textoExportacaoConv()); });
+    if (convCsv) convCsv.addEventListener('click', exportarCsvConv);
+
+    if ($('convTabsAdicionar')) $('convTabsAdicionar').addEventListener('click', function () {
+      convArquivoModo = 'tabela';
+      convArquivo.value = '';
+      convArquivo.click();
+    });
+    if (convBtImpCli) convBtImpCli.addEventListener('click', function () {
+      if (!Object.keys(CONV_TABELAS).length) {
+        avisar('Importe primeiro a tabela de conversão da fábrica em "Tabelas".');
+        return;
+      }
+      convArquivoModo = 'cliente';
+      convArquivo.value = '';
+      convArquivo.click();
+    });
+
+    if (convArquivo) convArquivo.addEventListener('change', function () {
+      const arq = convArquivo.files && convArquivo.files[0];
+      if (!arq) return;
+      avisarFixo('Lendo planilha…');
+      lerArquivoTabela(arq, function (m) { avisarFixo(m); }).then(function (res) {
+        esconderAviso();
+        if (convArquivoModo === 'cliente') {
+          abrirModalConvCli(res);
+        } else {
+          const fabGuess = adivinharFab(arq.name);
+          convImp = {
+            fabId: fabGuess || convFabAtual || (REPS[0] ? REPS[0].id : ''),
+            planilhas: res.planilhas, p: 0,
+            det: detectarPlanilhaConv(res.planilhas[0].linhas)
+          };
+          history.pushState({ t: 'convImp' }, '');
+          aplicar('convImp');
+        }
+      }).catch(function (e) {
+        esconderAviso();
+        confirmar({ titulo: 'Não deu para abrir o arquivo', texto: mensagemErroPlanilha(e), sim: 'OK', nao: null });
+      });
+    });
+
+    if (convImpFab) convImpFab.addEventListener('change', function () { if (convImp) { convImp.fabId = convImpFab.value; renderizarConvImp(false); } });
+    if (convImpPlan) convImpPlan.addEventListener('change', function () {
+      if (!convImp) return;
+      convImp.p = parseInt(convImpPlan.value, 10) || 0;
+      convImp.det = detectarPlanilhaConv(convImp.planilhas[convImp.p].linhas);
+      renderizarConvImp(false);
+    });
+    if ($('convImpMenos')) $('convImpMenos').addEventListener('click', function () {
+      if (!convImp) return;
+      convImp.det.inicio = Math.max(0, convImp.det.inicio - 1);
+      renderizarConvImp(false);
+    });
+    if ($('convImpMais')) $('convImpMais').addEventListener('click', function () {
+      if (!convImp) return;
+      const max = convImp.planilhas[convImp.p].linhas.length - 1;
+      convImp.det.inicio = Math.min(max, convImp.det.inicio + 1);
+      renderizarConvImp(false);
+    });
+    if (convImpLinha) convImpLinha.addEventListener('change', function () {
+      if (!convImp) return;
+      convImp.det.inicio = Math.max(0, (parseInt(convImpLinha.value, 10) || 1) - 1);
+      renderizarConvImp(false);
+    });
+    if (convImpCod) convImpCod.addEventListener('change', function () { if (convImp) { convImp.det.colCod = parseInt(convImpCod.value, 10); renderizarConvImp(false); } });
+    if (convImpDesc) convImpDesc.addEventListener('change', function () { if (convImp) { convImp.det.colDesc = parseInt(convImpDesc.value, 10); renderizarConvImp(false); } });
+    if ($('convImpAddConc')) $('convImpAddConc').addEventListener('click', function () {
+      if (!convImp) return;
+      convImp.det.concs.push({ col: -1, nome: 'Concorrente ' + (convImp.det.concs.length + 1) });
+      renderizarConvImp(false);
+    });
+    if (convImpSalvar) convImpSalvar.addEventListener('click', function () {
+      if (!convImp) return;
+      const pl = convImp.planilhas[convImp.p];
+      const det = convImp.det;
+      const concsVal = det.concs.filter(function (c) { return c.col >= 0 && c.nome.trim(); });
+      const nomesConc = concsVal.map(function (c) { return c.nome.trim(); });
+      const itens = [];
+      for (let i = det.inicio; i < pl.linhas.length; i++) {
+        const l = pl.linhas[i] || [];
+        const cod = String(l[det.colCod] == null ? '' : l[det.colCod]).trim();
+        if (!cod) continue;
+        const desc = det.colDesc >= 0 ? String(l[det.colDesc] == null ? '' : l[det.colDesc]).trim() : '';
+        const eq = {};
+        let temAlgum = false;
+        concsVal.forEach(function (cc) {
+          const v = String(l[cc.col] == null ? '' : l[cc.col]).trim();
+          if (v) { eq[cc.nome.trim()] = v; temAlgum = true; }
+        });
+        if (temAlgum) itens.push({ cod: cod, desc: desc, eq: eq });
+      }
+      if (!itens.length) { avisar('Nenhum item com código de concorrente encontrado.'); return; }
+      CONV_TABELAS[convImp.fabId] = { fabId: convImp.fabId, em: Date.now(), concorrentes: nomesConc, itens: itens };
+      gravarConvTabelas().then(function () {
+        convFabAtual = convImp.fabId;
+        convImp = null;
+        avisar('Tabela de conversão salva (' + plural(itens.length, 'item', 'itens') + ')!');
+        history.back();
+      });
+    });
+
+    if (convCliPlan) convCliPlan.addEventListener('change', function () {
+      if (!convCliDados) return;
+      convCliDados.p = parseInt(convCliPlan.value, 10) || 0;
+      convCliDados.det = detectarPlanilhaConv(convCliDados.planilhas[convCliDados.p].linhas);
+      convCliDados.colCod = convCliDados.det.colCod >= 0 ? convCliDados.det.colCod : 0;
+      convCliDados.linha = convCliDados.det.inicio + 1;
+      atualizarModalConvCli();
+    });
+    if (convCliCod) convCliCod.addEventListener('change', function () { if (convCliDados) { convCliDados.colCod = parseInt(convCliCod.value, 10); atualizarModalConvCli(); } });
+    if (convCliQtd) convCliQtd.addEventListener('change', function () { if (convCliDados) { convCliDados.colQtd = parseInt(convCliQtd.value, 10); atualizarModalConvCli(); } });
+    if (convCliLinha) convCliLinha.addEventListener('change', function () { if (convCliDados) { convCliDados.linha = parseInt(convCliLinha.value, 10) || 1; atualizarModalConvCli(); } });
+    if ($('btConvCliCancelar')) $('btConvCliCancelar').addEventListener('click', fecharModalConvCli);
+    if ($('btConvCliConverter')) $('btConvCliConverter').addEventListener('click', converterPlanilhaCliente);
   </script>
   <script src="dados.js"></script>
   <script src="tabelas_padrao.js"></script>
