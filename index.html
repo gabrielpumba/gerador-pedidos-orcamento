@@ -1689,6 +1689,9 @@
     .engrenagem:active { transform: scale(0.93); background: var(--vidro-2); }
     .engrenagem .ic { width: 24px; height: 24px; }
     .engrenagem.hist-bt { right: 58px; animation-delay: 0.18s; }
+    .engrenagem.upd-bt { right: 116px; animation-delay: 0.24s; }
+    @keyframes girarUpd { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .engrenagem.upd-bt.girando .ic { animation: girarUpd 0.8s linear infinite; }
     .menu-tab { padding: 20px 16px 16px; }
     .menu-ops { display: grid; gap: 10px; margin-top: 14px; }
     .menu-op {
@@ -2395,6 +2398,7 @@
   <main class="home" id="home">
     <button class="engrenagem" id="engrenagem" type="button" aria-label="Tabelas de preços" aria-haspopup="dialog"><svg class="ic" aria-hidden="true"><use href="#i-engrenagem"/></svg></button>
     <button class="engrenagem hist-bt" id="histBt" type="button" aria-label="Histórico de pedidos e orçamentos"><svg class="ic" aria-hidden="true"><use href="#i-historico"/></svg></button>
+    <button class="engrenagem upd-bt" id="btAtualizarTopo" type="button" title="Verificar e baixar atualização" aria-label="Atualizar aplicativo"><svg class="ic" aria-hidden="true"><use href="#i-atualizar"/></svg></button>
     <div class="home-topo">
       <header class="home-marca">
         <img class="logo" src="logo-okada.webp" width="1000" height="317" alt="Okada 1989" decoding="async" fetchpriority="high">
@@ -2441,7 +2445,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v59 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v60 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -7736,6 +7740,7 @@
     }
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
+      const btUpdTopo = $('btAtualizarTopo');
       try {
         const recem = sessionStorage.getItem('okada_recem_atualizado');
         if (recem) {
@@ -7746,13 +7751,15 @@
         }
       } catch (e) {}
 
-      if (manual && infoVer) {
-        infoVer.textContent = 'Verificando atualização na nuvem...';
+      if (manual) {
+        if (infoVer) infoVer.textContent = 'Verificando atualização na nuvem...';
+        if (btUpdTopo) btUpdTopo.classList.add('girando');
       }
       fetch('/api/checar_atualizacao', { cache: 'no-store' }).then(function (res) {
         if (!res.ok) return null;
         return res.json();
       }).then(function (d) {
+        if (btUpdTopo) btUpdTopo.classList.remove('girando');
         const verAtualTela = (infoVer && infoVer.textContent.match(/okada-v\d+/)) ? infoVer.textContent.match(/okada-v\d+/)[0] : '';
         if (d && d.versao && infoVer) {
           infoVer.textContent = 'Versão ' + d.versao + (d.motivo === 'pc_principal' ? ' · PC Principal' : (d.erro ? ' · Erro ao checar' : ' · Atualizado'));
@@ -7769,20 +7776,27 @@
           });
         } else if (manual) {
           if (d && d.erro) avisar('Não foi possível checar atualização: ' + d.erro);
+          else if (d && d.motivo === 'pc_principal') avisar('PC Principal (' + ((d && d.versao) || 'atual') + '). Use GERAR COMPILAÇÃO para enviar novidades.');
           else avisar('O aplicativo já está na versão mais recente (' + ((d && d.versao) || 'atual') + ').');
         }
       }).catch(function () {
+        if (btUpdTopo) btUpdTopo.classList.remove('girando');
         if (infoVer) {
           fetch('sw.js', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
             const m = t && t.match(/okada-v(\d+)/);
             if (m) infoVer.textContent = 'Versão okada-v' + m[1];
           }).catch(function () {});
         }
+        if (manual) avisar('Não foi possível conectar ao servidor local para atualizar.');
       });
     }
     const btInfoVersao = $('infoVersaoApp');
     if (btInfoVersao) {
       btInfoVersao.addEventListener('click', function () { checarAtualizacaoRemota(true); });
+    }
+    const btAtualizarTopo = $('btAtualizarTopo');
+    if (btAtualizarTopo) {
+      btAtualizarTopo.addEventListener('click', function () { checarAtualizacaoRemota(true); });
     }
     $('cadSalvarCopia').addEventListener('click', salvarCopia);
     $('cadCompilar').addEventListener('click', compilarPacote);
