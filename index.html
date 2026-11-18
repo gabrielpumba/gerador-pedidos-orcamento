@@ -2445,7 +2445,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v62 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v63 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -7738,9 +7738,67 @@
       }
       return tentar(0);
     }
+    const REPO_NUVEM_PADRAO = 'gabrielpumba/gerador-pedidos-orcamento';
+    function fetchComTimeout(url, opcoes, ms) {
+      return new Promise(function (resolve, reject) {
+        const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = setTimeout(function () {
+          if (ctrl) try { ctrl.abort(); } catch (e) {}
+          reject(new Error('timeout'));
+        }, ms || 7000);
+        const cfg = Object.assign({}, opcoes || {});
+        if (ctrl) cfg.signal = ctrl.signal;
+        fetch(url, cfg).then(function (r) {
+          clearTimeout(timer);
+          resolve(r);
+        }).catch(function (e) {
+          clearTimeout(timer);
+          reject(e);
+        });
+      });
+    }
+    function baixarTextoGitHub(repo, arq) {
+      const ts = Date.now();
+      return fetchComTimeout('https://api.github.com/repos/' + repo + '/contents/' + arq + '?t=' + ts, {
+        cache: 'no-store',
+        headers: { 'Accept': 'application/vnd.github.v3.raw' }
+      }, 7000).then(function (r) {
+        if (!r.ok) throw new Error('status ' + r.status);
+        return r.text();
+      }).catch(function () {
+        return fetchComTimeout('https://raw.githubusercontent.com/' + repo + '/main/' + arq + '?t=' + ts, {
+          cache: 'no-store'
+        }, 7000).then(function (r2) {
+          if (!r2.ok) throw new Error('status ' + r2.status);
+          return r2.text();
+        });
+      });
+    }
+    function extrairNumVersao(txt) {
+      const m = String(txt || '').match(/okada-v(\d+)/);
+      return m ? parseInt(m[1], 10) : 0;
+    }
+    function limparCachesERecarregar(verStr) {
+      try { sessionStorage.setItem('okada_recem_atualizado', verStr || 'nova versão'); } catch (e) {}
+      avisar('Nova atualização (' + (verStr || 'nova versão') + ') aplicada! Recarregando...');
+      const limparSw = (navigator.serviceWorker && navigator.serviceWorker.getRegistrations)
+        ? navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (reg) { return reg.update().catch(function () {}); }));
+          }).catch(function () {})
+        : Promise.resolve();
+      const limparCache = (window.caches && caches.keys)
+        ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }).catch(function () {})
+        : Promise.resolve();
+      Promise.all([limparSw, limparCache]).then(function () {
+        setTimeout(function () { location.reload(); }, 900);
+      });
+    }
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 63;
+      const verTelaStr = 'okada-v' + verTelaNum;
+
       try {
         const recem = sessionStorage.getItem('okada_recem_atualizado');
         if (recem) {
@@ -7755,39 +7813,115 @@
         if (infoVer) infoVer.textContent = 'Verificando atualização na nuvem...';
         if (btUpdTopo) btUpdTopo.classList.add('girando');
       }
-      fetch('/api/checar_atualizacao', { cache: 'no-store' }).then(function (res) {
-        if (!res.ok) return null;
-        return res.json();
-      }).then(function (d) {
+
+      // Garantia absoluta: nunca ficar preso em "Verificando atualização na nuvem..."
+      const travaSeguranca = setTimeout(function () {
         if (btUpdTopo) btUpdTopo.classList.remove('girando');
-        const verAtualTela = (infoVer && infoVer.textContent.match(/okada-v\d+/)) ? infoVer.textContent.match(/okada-v\d+/)[0] : '';
-        if (d && d.versao && infoVer) {
-          infoVer.textContent = 'Versão ' + d.versao + (d.motivo === 'pc_principal' ? ' · PC Principal' : (d.erro ? ' · Erro ao checar' : ' · Atualizado'));
+        if (infoVer && infoVer.textContent.indexOf('Verificando') !== -1) {
+          infoVer.textContent = 'Versão ' + verTelaStr + ' · Atualizado';
         }
-        const precisaRecarregar = d && (d.atualizado || (d.versao && verAtualTela && d.versao !== verAtualTela));
-        if (precisaRecarregar) {
-          try { sessionStorage.setItem('okada_recem_atualizado', d.versao || 'nova versão'); } catch (e) {}
-          avisar('Nova atualização (' + (d.versao || 'nova versão') + ') encontrada! Atualizando...');
-          const limpar = (window.caches && caches.keys)
-            ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
-            : Promise.resolve();
-          limpar.then(function () {
-            setTimeout(function () { location.reload(); }, 1200);
+      }, 11000);
+
+      function finalizarUi(verStr, sufixo) {
+        clearTimeout(travaSeguranca);
+        if (btUpdTopo) btUpdTopo.classList.remove('girando');
+        if (infoVer) infoVer.textContent = 'Versão ' + (verStr || verTelaStr) + (sufixo || ' · Atualizado');
+      }
+
+      // 1) Consulta direta ao GitHub pelo próprio navegador (rápida, não depende do PowerShell)
+      baixarTextoGitHub(REPO_NUVEM_PADRAO, 'sw.js').then(function (swRemoto) {
+        const verRemotaNum = extrairNumVersao(swRemoto);
+        const verRemotaStr = verRemotaNum > 0 ? ('okada-v' + verRemotaNum) : verTelaStr;
+
+        if (verRemotaNum > verTelaNum) {
+          if (infoVer) infoVer.textContent = 'Baixando ' + verRemotaStr + ' da nuvem...';
+          // Baixa tabelas_padrao.json e aplica imediatamente no IndexedDB do navegador, além de atualizar os arquivos locais
+          return Promise.all([
+            baixarTextoGitHub(REPO_NUVEM_PADRAO, 'tabelas_padrao.json').catch(function () { return ''; }),
+            baixarTextoGitHub(REPO_NUVEM_PADRAO, 'index.html').catch(function () { return ''; }),
+            baixarTextoGitHub(REPO_NUVEM_PADRAO, 'servidor.ps1').catch(function () { return ''; })
+          ]).then(function (arqs) {
+            const tabJsonTxt = arqs[0], idxTxt = arqs[1], srvTxt = arqs[2];
+            let promBanco = Promise.resolve();
+            if (tabJsonTxt) {
+              try {
+                const objTab = JSON.parse(tabJsonTxt);
+                if (objTab && objTab.app === 'okada-pedidos') {
+                  promBanco = aplicarObjetoCopia(objTab, true).then(function () {
+                    return bdMetaGravar('copiaPadrao:embarcada', String(objTab.criado || '1'));
+                  }).catch(function () {});
+                }
+              } catch (e) {}
+            }
+            const payloadLocal = {
+              'sw.js': swRemoto
+            };
+            if (tabJsonTxt) {
+              payloadLocal['tabelas_padrao.json'] = tabJsonTxt;
+              payloadLocal['tabelas_padrao.js'] = 'window.TABELAS_PADRAO = ' + tabJsonTxt + ';';
+            }
+            if (idxTxt) payloadLocal['index.html'] = idxTxt;
+            if (srvTxt) payloadLocal['servidor.ps1'] = srvTxt;
+
+            const promDisco = fetchComTimeout('/api/atualizar_arquivos_locais', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payloadLocal)
+            }, 6000).catch(function () {
+              return fetchComTimeout('/api/checar_atualizacao', { cache: 'no-store' }, 6000).catch(function () {});
+            });
+
+            return Promise.all([promBanco, promDisco]).then(function () {
+              finalizarUi(verRemotaStr, ' · Atualizado');
+              limparCachesERecarregar(verRemotaStr);
+            });
           });
-        } else if (manual) {
-          if (d && d.erro) avisar('Não foi possível checar atualização: ' + d.erro);
-          else if (d && d.motivo === 'pc_principal') avisar('PC Principal (' + ((d && d.versao) || 'atual') + '). Use GERAR COMPILAÇÃO para enviar novidades.');
-          else avisar('O aplicativo já está na versão mais recente (' + ((d && d.versao) || 'atual') + ').');
         }
+
+        // Mesmo que o número da versão seja igual, se o usuário clicou manualmente em Atualizar, sincroniza o tabelas_padrao.json da nuvem
+        if (manual) {
+          return baixarTextoGitHub(REPO_NUVEM_PADRAO, 'tabelas_padrao.json').then(function (tabJsonTxt) {
+            if (!tabJsonTxt) return;
+            const objTab = JSON.parse(tabJsonTxt);
+            if (!objTab || objTab.app !== 'okada-pedidos') return;
+            const verCriado = String(objTab.criado || '1');
+            return bdMeta('copiaPadrao:embarcada').then(function (jaAplicado) {
+              if (jaAplicado === verCriado) return false;
+              return aplicarObjetoCopia(objTab, true).then(function () {
+                return bdMetaGravar('copiaPadrao:embarcada', verCriado).then(function () { return true; });
+              });
+            });
+          }).then(function (trouxeDadosNovos) {
+            finalizarUi(verRemotaStr, ' · Atualizado');
+            if (trouxeDadosNovos) {
+              avisar('Tabelas e cadastros sincronizados da nuvem (' + verRemotaStr + ')!');
+            } else {
+              avisar('O aplicativo já está na versão mais recente (' + verRemotaStr + ').');
+            }
+          }).catch(function () {
+            finalizarUi(verRemotaStr, ' · Atualizado');
+            avisar('O aplicativo já está na versão mais recente (' + verRemotaStr + ').');
+          });
+        }
+
+        finalizarUi(verRemotaStr, ' · Atualizado');
       }).catch(function () {
-        if (btUpdTopo) btUpdTopo.classList.remove('girando');
-        if (infoVer) {
-          fetch('sw.js', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
-            const m = t && t.match(/okada-v(\d+)/);
-            if (m) infoVer.textContent = 'Versão okada-v' + m[1];
-          }).catch(function () {});
-        }
-        if (manual) avisar('Não foi possível conectar ao servidor local para atualizar.');
+        // Fallback: se o navegador não conseguiu acessar o GitHub direto, pergunta ao servidor local com timeout curto
+        fetchComTimeout('/api/checar_atualizacao', { cache: 'no-store' }, 6000).then(function (res) {
+          if (!res.ok) return null;
+          return res.json();
+        }).then(function (d) {
+          const verSrv = (d && d.versao) || verTelaStr;
+          finalizarUi(verSrv, (d && d.motivo === 'pc_principal') ? ' · PC Principal' : ' · Atualizado');
+          if (d && (d.atualizado || (d.versao && d.versao !== verTelaStr))) {
+            limparCachesERecarregar(verSrv);
+          } else if (manual) {
+            avisar('O aplicativo está na versão ' + verSrv + '.');
+          }
+        }).catch(function () {
+          finalizarUi(verTelaStr, ' · Offline');
+          if (manual) avisar('Sem conexão com a nuvem no momento (Versão ' + verTelaStr + ').');
+        });
       });
     }
     const btInfoVersao = $('infoVersaoApp');

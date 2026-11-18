@@ -323,17 +323,26 @@ function Verificar-Atualizacao-Nuvem {
             return @{ atualizado = $false; motivo = "repo_vazio"; versao = $strVerLocal }
         }
 
-        # Busca o sw.js remoto sem cache
+        # Busca o sw.js remoto sem cache (usando -UseBasicParsing para nunca travar no motor do IE no Windows PowerShell 5.1)
         $swRemotoTxt = $null
+        $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
         try {
             $headersRaw = @{
-                "Accept"     = "application/vnd.github.v3.raw"
-                "User-Agent" = "OkadaPedidos-Updater"
+                "Accept"        = "application/vnd.github.v3.raw"
+                "User-Agent"    = "OkadaPedidos-Updater"
+                "Cache-Control" = "no-cache"
             }
-            $swRemotoTxt = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoSlug/contents/sw.js" -Headers $headersRaw -Method Get -TimeoutSec 10
+            $rSw = Invoke-WebRequest -Uri "https://api.github.com/repos/$repoSlug/contents/sw.js?t=$ts" -Headers $headersRaw -Method Get -TimeoutSec 8 -UseBasicParsing
+            $swRemotoTxt = $rSw.Content
         } catch {
-            $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-            $swRemotoTxt = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$repoSlug/main/sw.js?t=$ts" -Method Get -TimeoutSec 10
+            try {
+                $rSw2 = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/$repoSlug/main/sw.js?t=$ts" -Headers @{ "Cache-Control" = "no-cache"; "User-Agent" = "OkadaPedidos-Updater" } -Method Get -TimeoutSec 8 -UseBasicParsing
+                $swRemotoTxt = $rSw2.Content
+            } catch { }
+        }
+
+        if ($swRemotoTxt -is [byte[]]) {
+            $swRemotoTxt = [System.Text.Encoding]::UTF8.GetString($swRemotoTxt)
         }
 
         if (-not $swRemotoTxt) {
@@ -351,7 +360,9 @@ function Verificar-Atualizacao-Nuvem {
         $remoteShas = @{}
         try {
             $headersJson = @{ "Accept" = "application/vnd.github+json"; "User-Agent" = "OkadaPedidos-Updater" }
-            $treeResp = Invoke-RestMethod -Uri "https://api.github.com/repos/$repoSlug/git/trees/main" -Headers $headersJson -Method Get -TimeoutSec 10
+            $rTree = Invoke-WebRequest -Uri "https://api.github.com/repos/$repoSlug/git/trees/main?t=$ts" -Headers $headersJson -Method Get -TimeoutSec 8 -UseBasicParsing
+            $treeTxt = if ($rTree.Content -is [byte[]]) { [System.Text.Encoding]::UTF8.GetString($rTree.Content) } else { [string]$rTree.Content }
+            $treeResp = $treeTxt | ConvertFrom-Json
             foreach ($item in $treeResp.tree) {
                 if ($item.type -eq 'blob') {
                     $remoteShas[$item.path] = $item.sha
@@ -359,8 +370,8 @@ function Verificar-Atualizacao-Nuvem {
             }
         } catch { }
 
-        $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-        $arquivosBaixar = @('index.html', 'tabelas_padrao.json', 'tabelas_padrao.js', 'dados.js', 'dados.enc', 'sw.js', 'servidor.ps1')
+        # IMPORTANTE: sw.js fica por ULTIMO para que a versao local so avance depois que index.html e tabelas_padrao.js ja tiverem sido atualizados
+        $arquivosBaixar = @('index.html', 'tabelas_padrao.json', 'tabelas_padrao.js', 'dados.js', 'dados.enc', 'servidor.ps1', 'sw.js')
         foreach ($arq in $arquivosBaixar) {
             $destArq = Join-Path $baseDir $arq
             if ($remoteShas.ContainsKey($arq) -and (Test-Path $destArq)) {
@@ -684,6 +695,42 @@ while ($listener.IsListening) {
         $context.Response.ContentLength64 = $respBytes.Length
         $context.Response.AddHeader('Cache-Control', 'no-cache, no-store')
         try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        try { $context.Response.OutputStream.Close() } catch { }
+        continue
+    }
+
+    if ($reqPath -eq 'api/atualizar_arquivos_locais' -and $context.Request.HttpMethod -eq 'POST') {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        try {
+            if (Test-Path $configFile) {
+                $respBytes = $utf8NoBom.GetBytes((@{ ok = $true; motivo = 'pc_principal' } | ConvertTo-Json -Compress))
+            } else {
+                $reader = New-Object System.IO.StreamReader($context.Request.InputStream, [System.Text.Encoding]::UTF8)
+                $body = $reader.ReadToEnd()
+                $dados = $body | ConvertFrom-Json
+                $permitidos = @('index.html', 'tabelas_padrao.json', 'tabelas_padrao.js', 'dados.js', 'dados.enc', 'servidor.ps1', 'sw.js')
+                $gravados = 0
+                foreach ($nomeArq in $permitidos) {
+                    $conteudoTxt = $dados.$nomeArq
+                    if (-not [string]::IsNullOrEmpty($conteudoTxt)) {
+                        $destArq = Join-Path $baseDir $nomeArq
+                        [System.IO.File]::WriteAllText($destArq, [string]$conteudoTxt, $utf8NoBom)
+                        $gravados++
+                    }
+                }
+                $respBytes = $utf8NoBom.GetBytes((@{ ok = $true; gravados = $gravados } | ConvertTo-Json -Compress))
+            }
+            $context.Response.ContentType = 'application/json; charset=utf-8'
+            $context.Response.ContentLength64 = $respBytes.Length
+            $context.Response.AddHeader('Cache-Control', 'no-cache, no-store')
+            try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        } catch {
+            $respBytes = $utf8NoBom.GetBytes((@{ ok = $false; erro = $_.Exception.Message } | ConvertTo-Json -Compress))
+            $context.Response.StatusCode = 500
+            $context.Response.ContentType = 'application/json; charset=utf-8'
+            $context.Response.ContentLength64 = $respBytes.Length
+            try { $context.Response.OutputStream.Write($respBytes, 0, $respBytes.Length) } catch { }
+        }
         try { $context.Response.OutputStream.Close() } catch { }
         continue
     }
