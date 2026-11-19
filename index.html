@@ -817,6 +817,38 @@
     .campo-prod { min-height: 64px; font-size: 25px; font-weight: 800; letter-spacing: 0.04em; padding-right: 54px; }
     .campo-prod::placeholder { font-size: 19px; letter-spacing: 0; }
     .prd-aviso { padding: 16px; border-radius: var(--r-md); background: var(--vidro); text-align: left; font-size: 16px; line-height: 1.45; }
+    .prd-busca-topo {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;
+    }
+    .prd-busca-topo .rotulo { margin: 0; }
+    .prd-imp-cli-bt {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1.5px solid rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.16);
+      color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 800;
+      padding: 5px 11px; border-radius: 999px; cursor: pointer;
+      transition: background 0.12s, transform 0.08s;
+    }
+    .prd-imp-cli-bt:hover { background: rgba(255, 255, 255, 0.28); }
+    .prd-imp-cli-bt:active { transform: scale(0.96); }
+    .prd-imp-cli-bt .ic { width: 15px; height: 15px; flex: none; }
+    .modal-imp-ped {
+      width: min(94vw, 560px); max-height: 90vh; display: flex; flex-direction: column;
+      padding: 20px 18px 16px; border-radius: 24px; text-align: left;
+    }
+    .modal-imp-ped h3 { margin: 0; font-size: 19px; font-weight: 800; color: var(--grena); }
+    .imp-ped-stepper {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .imp-ped-step-bt {
+      width: 40px; height: 42px; border: 1.5px solid #DCCFD4; border-radius: 10px;
+      background: #FAF6F8; color: var(--grena); display: grid; place-items: center; cursor: pointer; flex: none;
+    }
+    .imp-ped-step-bt:active { background: var(--rosa); }
+    .imp-ped-step-bt .ic { width: 17px; height: 17px; }
+    .imp-ped-resumo-box {
+      padding: 10px 12px; border-radius: 12px; background: #F4F7FC; border: 1px solid #D3E0F5;
+      color: #1E4D99; font-size: 13px; font-weight: 700; line-height: 1.35;
+    }
     .prd-tab-info-linha {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       background: rgba(0, 0, 0, 0.22); border: 1px solid rgba(255, 255, 255, 0.14);
@@ -2445,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v63 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v64 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -2592,7 +2624,13 @@
         </div>
         <p class="prd-aviso" id="prdAviso" hidden></p>
         <div id="prdBuscaBloco">
-          <label class="rotulo" for="campoProd">Código do produto</label>
+          <div class="prd-busca-topo">
+            <label class="rotulo" for="campoProd">Código do produto</label>
+            <button type="button" class="prd-imp-cli-bt" id="btImpPedidoCli" title="Importar pedido já enviado pelo cliente (Excel, CSV ou PDF)">
+              <svg class="ic" aria-hidden="true"><use href="#i-planilha"/></svg>
+              <span>Importar pedido do cliente</span>
+            </button>
+          </div>
           <div class="busca" id="prdBusca">
             <svg class="ic lupa" aria-hidden="true"><use href="#i-buscar"/></svg>
             <input class="campo campo-prod" id="campoProd" name="produto" type="text" inputmode="numeric" maxlength="24"
@@ -3507,6 +3545,44 @@
       <button class="dlg-bt dlg-sim" id="btConvCliConverter" type="button">Converter planilha</button>
     </div>
   </div>
+  <div class="dlg modal-imp-ped" id="modalImpPedidoCli" role="dialog" aria-modal="true" aria-labelledby="modalImpPedT" hidden>
+    <h3 id="modalImpPedT">Importar pedido do cliente</h3>
+    <p class="modal-editar-cliente-sub" id="modalImpPedSub">Escolha abaixo as colunas do código e da quantidade no arquivo enviado pelo cliente.</p>
+    <div class="modal-email-rolagem">
+      <div id="impPedPlanBloco" hidden>
+        <label class="modal-editar-cliente-rot" for="impPedPlan" style="margin-top:0;">Qual planilha (aba)?</label>
+        <select class="email-campo" id="impPedPlan"></select>
+      </div>
+      <div>
+        <span class="modal-editar-cliente-rot" style="margin-top:0;">Seu arquivo (prévia)</span>
+        <div class="prev-caixa" style="max-height: 165px;"><div class="prev-rolagem" id="impPedPrev" style="max-height: 161px;"></div></div>
+      </div>
+      <div>
+        <label class="modal-editar-cliente-rot" for="impPedLinha">Os produtos começam na linha</label>
+        <div class="imp-ped-stepper">
+          <button class="imp-ped-step-bt" id="impPedMenos" type="button" aria-label="Linha anterior"><svg class="ic" aria-hidden="true"><use href="#i-menos"/></svg></button>
+          <input class="email-campo" id="impPedLinha" type="number" min="1" value="1" style="text-align:center; font-weight:800;">
+          <button class="imp-ped-step-bt" id="impPedMais" type="button" aria-label="Próxima linha"><svg class="ic" aria-hidden="true"><use href="#i-mais"/></svg></button>
+        </div>
+      </div>
+      <div>
+        <label class="modal-editar-cliente-rot" for="impPedCod">Qual coluna é o CÓDIGO?</label>
+        <select class="email-campo" id="impPedCod"></select>
+      </div>
+      <div>
+        <label class="modal-editar-cliente-rot" for="impPedQtd">Qual coluna é a QUANTIDADE?</label>
+        <select class="email-campo" id="impPedQtd"></select>
+      </div>
+      <div class="imp-ped-resumo-box" id="impPedResumo"></div>
+    </div>
+    <p class="dlg-erro" id="erroImpPed" role="alert" hidden></p>
+    <div class="dlg-bts" style="margin-top: 12px;">
+      <button class="dlg-bt" id="btImpPedCancelar" type="button">Cancelar</button>
+      <button class="dlg-bt dlg-sim" id="btImpPedConfirmar" type="button">Importar itens</button>
+    </div>
+  </div>
+  <input type="file" id="arqImpPedidoCli" hidden
+         accept=".xlsx,.xls,.csv,.txt,.pdf,text/csv,text/comma-separated-values,application/csv,text/plain,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
   <div class="dlg" id="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT" aria-describedby="dlgX" hidden>
     <h3 id="dlgT"></h3>
     <p id="dlgX"></p>
@@ -3793,7 +3869,8 @@
       const q = normalizar(termo || '').trim();
       modalItensLista.textContent = '';
 
-      if (modalItensDados.tipo === 'semPreco') {
+      if (modalItensDados.tipo === 'semPreco' || modalItensDados.tipo === 'naoEncontrados') {
+        const ehNaoEnc = modalItensDados.tipo === 'naoEncontrados';
         const itens = modalItensDados.itens || [];
         const filtrados = q ? itens.filter(function (it) {
           return normalizar(it.cod || '').includes(q) || normalizar(it.desc || '').includes(q) || String(it.linha) === q;
@@ -3802,7 +3879,7 @@
         if (modalItensVazio) modalItensVazio.hidden = filtrados.length > 0;
         if (modalItensSub) {
           if (q) {
-            modalItensSub.textContent = 'Exibindo ' + filtrados.length + ' de ' + itens.length + ' ' + (itens.length === 1 ? 'produto' : 'produtos');
+            modalItensSub.textContent = 'Exibindo ' + filtrados.length + ' de ' + itens.length + ' ' + (itens.length === 1 ? 'item' : 'itens');
           } else {
             modalItensSub.textContent = modalItensDados.subtitulo || '';
           }
@@ -3814,7 +3891,7 @@
           const topo = el('div', 'item-aviso-topo');
           topo.appendChild(el('span', 'badge-cod', it.cod || '—'));
           if (it.linha) topo.appendChild(el('span', 'badge-linha', 'Linha ' + it.linha));
-          topo.appendChild(el('span', 'badge-status-sem', 'Sem preço'));
+          topo.appendChild(el('span', 'badge-status-sem', ehNaoEnc ? (it.motivo || 'Não encontrado') : 'Sem preço'));
           li.appendChild(topo);
           if (it.desc) li.appendChild(el('div', 'item-aviso-desc', it.desc));
           frag.appendChild(li);
@@ -3908,13 +3985,13 @@
     function copiarItensModal() {
       if (!modalItensDados) return;
       let txt = '';
-      if (modalItensDados.tipo === 'semPreco') {
+      if (modalItensDados.tipo === 'semPreco' || modalItensDados.tipo === 'naoEncontrados') {
         const itens = modalItensDados.itens || [];
-        txt = 'PRODUTOS SEM PREÇO (' + itens.length + ' produtos)\n';
+        txt = (modalItensDados.tipo === 'naoEncontrados' ? 'CÓDIGOS NÃO IMPORTADOS (' : 'PRODUTOS SEM PREÇO (') + itens.length + ' itens)\n';
         if (modalItensDados.subtitulo) txt += modalItensDados.subtitulo + '\n';
         txt += '----------------------------------------\n';
         itens.forEach(function (it) {
-          txt += (it.linha ? 'Linha ' + it.linha + ' · ' : '') + 'Código: ' + (it.cod || '—') + (it.desc ? ' · ' + it.desc : '') + '\n';
+          txt += (it.linha ? 'Linha ' + it.linha + ' · ' : '') + 'Código: ' + (it.cod || '—') + (it.desc ? ' · ' + it.desc : '') + (it.motivo ? ' (' + it.motivo + ')' : '') + '\n';
         });
       } else if (modalItensDados.tipo === 'repetidos') {
         const reps = modalItensDados.repetidos || [];
@@ -4074,6 +4151,7 @@
         if (t === 'home') { indoParaInicio = false; aplicar('home'); } else history.back();
         return;
       }
+      if (modalImpPedidoCli && !modalImpPedidoCli.hidden) { fecharModalImpPedidoCli(); history.pushState({ t: tela }, ''); return; }
       if (modalConvCli && !modalConvCli.hidden) { fecharModalConvCli(); history.pushState({ t: tela }, ''); return; }
       if (modalEnviarEmail && !modalEnviarEmail.hidden) { fecharModalEnviarEmail(); history.pushState({ t: tela }, ''); return; }
       if (modalEditarCliente && !modalEditarCliente.hidden) { fecharModalEditarCliente(); history.pushState({ t: tela }, ''); return; }
@@ -7796,7 +7874,7 @@
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
-      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 63;
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 64;
       const verTelaStr = 'okada-v' + verTelaNum;
 
       try {
@@ -11077,6 +11155,7 @@
     $('menuGer').addEventListener('click', function () { abrirTabelas(null); });
     $('menuFechar').addEventListener('click', function () { if (tela === 'menu') history.back(); });
     dlgFundo.addEventListener('click', function () {
+      if (modalImpPedidoCli && !modalImpPedidoCli.hidden) { fecharModalImpPedidoCli(); return; }
       if (modalConvCli && !modalConvCli.hidden) { fecharModalConvCli(); return; }
       if (modalEnviarEmail && !modalEnviarEmail.hidden) { fecharModalEnviarEmail(); return; }
       if (modalEditarCliente && !modalEditarCliente.hidden) { fecharModalEditarCliente(); return; }
@@ -11085,6 +11164,11 @@
       if (tela === 'menu') history.back();
     });
     window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modalImpPedidoCli && !modalImpPedidoCli.hidden) {
+        e.preventDefault();
+        fecharModalImpPedidoCli();
+        return;
+      }
       if (e.key === 'Escape' && modalConvCli && !modalConvCli.hidden) {
         e.preventDefault();
         fecharModalConvCli();
@@ -14041,6 +14125,395 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     if (convCliLinha) convCliLinha.addEventListener('change', function () { if (convCliDados) { convCliDados.linha = parseInt(convCliLinha.value, 10) || 1; atualizarModalConvCli(); } });
     if ($('btConvCliCancelar')) $('btConvCliCancelar').addEventListener('click', fecharModalConvCli);
     if ($('btConvCliConverter')) $('btConvCliConverter').addEventListener('click', converterPlanilhaCliente);
+
+    // ---------- Importar Pedido Enviado pelo Cliente (Excel / CSV / PDF) na Tela de Produtos ----------
+    const modalImpPedidoCli = $('modalImpPedidoCli');
+    const arqImpPedidoCli = $('arqImpPedidoCli');
+    const impPedPlanBloco = $('impPedPlanBloco'), impPedPlan = $('impPedPlan');
+    const impPedPrev = $('impPedPrev'), impPedLinha = $('impPedLinha');
+    const impPedCod = $('impPedCod'), impPedQtd = $('impPedQtd');
+    const impPedResumo = $('impPedResumo'), erroImpPed = $('erroImpPed'), btImpPedConfirmar = $('btImpPedConfirmar');
+    let impPedEstado = null; // { arq, planilhas, p, linhas, an, inicio, colCod, colQtd, simulacao }
+
+    function detectarColunasPedidoCliente(linhas) {
+      const an = analisarPlanilha(linhas);
+      let colCod = -1, colQtd = -1;
+      an.colunas.forEach(function (c, k) {
+        const tit = normalizar(c.titulo || '');
+        if (colCod < 0 && /\b(cod|codigo|ref|referencia|item|peca|produto|part)\b/.test(tit)) colCod = k;
+        if (colQtd < 0 && /\b(qtd|qtde|quant|quantidade|ped|pedido|solicit|pecas|unid|un)\b/.test(tit)) colQtd = k;
+      });
+      if (colCod < 0) {
+        an.colunas.forEach(function (c, k) {
+          if (colCod < 0 && c.papel === 'cod') colCod = k;
+        });
+      }
+      if (colCod < 0 && an.ncols > 0) colCod = 0;
+
+      if (colQtd < 0) {
+        // Procura uma coluna predominantemente numérica inteira que não seja a coluna do código
+        let melhorQtd = -1, melhorScore = -1;
+        an.colunas.forEach(function (c, k) {
+          if (k === colCod || !c || !c.n) return;
+          const tit = normalizar(c.titulo || '');
+          if (/preco|valor|vlr|r\$|total|desc|ipi|icms|ncm/.test(tit)) return;
+          if (c.parteNum >= 0.6) {
+            const score = (1 - (c.parteDec || 0)) * 10 + c.parteNum;
+            if (score > melhorScore) { melhorScore = score; melhorQtd = k; }
+          }
+        });
+        if (melhorQtd >= 0) colQtd = melhorQtd;
+        else if (an.ncols > 1) colQtd = (colCod === 0 ? 1 : 0);
+      }
+      return { an: an, inicio: an.inicio, colCod: colCod, colQtd: colQtd };
+    }
+
+    function lerQtdPlanilhaCliente(val) {
+      if (val == null) return 0;
+      if (typeof val === 'number') return isFinite(val) && val >= 1 ? Math.round(val) : 0;
+      const s = String(val).trim().replace(/\s+/g, '');
+      if (!s) return 0;
+      // Aceita "10", "10,00", "10.00", "10UN", "10PC"
+      const m = s.match(/^(\d+)(?:[.,]0+)?(?:[A-Za-z]{1,4})?$/);
+      if (m) return parseInt(m[1], 10) || 0;
+      const n = parseInt(s.replace(/[^\d]/g, ''), 10);
+      return n >= 1 && n <= 999999 ? n : 0;
+    }
+
+    function casarProdutoNoCatalogo(rawCod) {
+      const q = alfa(rawCod);
+      if (!q) return null;
+      const qSemZero = q.replace(/^0+/, '');
+      const baseTodas = (representada && tabelasProntas[representada.tabela]) || [];
+      const baseAtiva = baseTodas.filter(function (p) { return !(p.tid && tabelasBloqueadas[p.tid]); });
+      const listas = [baseAtiva];
+      if (baseAtiva.length !== baseTodas.length) listas.push(baseTodas);
+
+      for (let li = 0; li < listas.length; li++) {
+        const base = listas[li];
+        // 1) Código exato
+        for (let i = 0; i < base.length; i++) {
+          if (base[i]._k === q) return { p: base[i], bloqueada: li > 0 };
+        }
+        // 2) Sem sigla inicial ou apenas dígitos ou sem zeros à esquerda
+        for (let i = 0; i < base.length; i++) {
+          const p = base[i];
+          const numSemZero = p._num ? p._num.replace(/^0+/, '') : '';
+          if ((p._num && p._num === q) || (p._d && p._d === q) || (numSemZero && qSemZero && numSemZero === qSemZero && qSemZero.length >= 2)) {
+            return { p: p, bloqueada: li > 0 };
+          }
+        }
+        // 3) Número original exato
+        for (let i = 0; i < base.length; i++) {
+          const p = base[i];
+          if (p._t && p._t.indexOf(q) !== -1) return { p: p, bloqueada: li > 0 };
+        }
+      }
+
+      // 4) Se houver Tabela de Conversão (De-Para) desta fábrica e o cliente mandou código do concorrente
+      if (representada && CONV_TABELAS[representada.id] && Array.isArray(CONV_TABELAS[representada.id].itens)) {
+        const tbConv = CONV_TABELAS[representada.id];
+        for (let i = 0; i < tbConv.itens.length; i++) {
+          const itC = tbConv.itens[i];
+          if (!itC.eq) continue;
+          const concs = Object.keys(itC.eq);
+          for (let j = 0; j < concs.length; j++) {
+            const toks = tokensCelulaConv(itC.eq[concs[j]]);
+            for (let k = 0; k < toks.length; k++) {
+              if (alfa(toks[k]) === q) {
+                const nossoQ = alfa(itC.cod);
+                const achouNosso = baseAtiva.find(function (p) { return p._k === nossoQ || p._num === nossoQ; }) ||
+                                   baseTodas.find(function (p) { return p._k === nossoQ || p._num === nossoQ; });
+                if (achouNosso) return { p: achouNosso, bloqueada: !!(achouNosso.tid && tabelasBloqueadas[achouNosso.tid]), convertidoDe: rawCod };
+              }
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function simularImportacaoPedido() {
+      if (!impPedEstado) return { itens: [], naoEncontrados: [], unidades: 0 };
+      const linhas = impPedEstado.linhas || [];
+      const ini = Math.max(0, impPedEstado.inicio);
+      const cCod = impPedEstado.colCod;
+      const cQtd = impPedEstado.colQtd;
+      const itens = [];
+      const naoEncontrados = [];
+      let unidades = 0;
+
+      for (let i = ini; i < linhas.length; i++) {
+        const l = linhas[i] || [];
+        const rawCod = cCod >= 0 ? String(l[cCod] == null ? '' : l[cCod]).trim() : '';
+        if (!rawCod || !alfa(rawCod)) continue;
+        // Ignora linhas de cabeçalho ou rodapé ("TOTAL", "CÓDIGO", "PRODUTO")
+        if (/^(codigo|cod|item|referencia|ref|produto|total|subtotal)$/i.test(normalizar(rawCod))) continue;
+
+        let qtd = 1;
+        if (cQtd >= 0) {
+          qtd = lerQtdPlanilhaCliente(l[cQtd]);
+          if (qtd <= 0) continue; // Linha sem quantidade válida
+        }
+
+        const casamento = casarProdutoNoCatalogo(rawCod);
+        if (!casamento || !casamento.p) {
+          naoEncontrados.push({ linha: i + 1, cod: rawCod, desc: 'Qtd solicitada: ' + qtd, motivo: 'Não encontrado' });
+          continue;
+        }
+        if (casamento.bloqueada) {
+          naoEncontrados.push({ linha: i + 1, cod: rawCod, desc: (casamento.p.orig || '') + ' (Qtd: ' + qtd + ')', motivo: 'Tabela bloqueada (' + (casamento.p.tn || '') + ')' });
+          continue;
+        }
+        const opPreco = precoPadraoDoProduto(casamento.p);
+        const precoVal = opPreco && opPreco.valor != null ? opPreco.valor : casamento.p.preco;
+        if (!precoVal || precoVal <= 0) {
+          naoEncontrados.push({ linha: i + 1, cod: rawCod, desc: (casamento.p.orig || '') + ' (Qtd: ' + qtd + ')', motivo: 'Sem preço na tabela' });
+          continue;
+        }
+        itens.push({
+          linha: i + 1,
+          p: casamento.p,
+          qtd: qtd,
+          preco: precoVal,
+          precoNome: (opPreco && Array.isArray(casamento.p.precos) && casamento.p.precos.length > 1) ? opPreco.nome : (casamento.p.precoNome || ''),
+          precoIdx: opPreco ? opPreco.idx : 0,
+          convertidoDe: casamento.convertidoDe || ''
+        });
+        unidades += qtd;
+      }
+      return { itens: itens, naoEncontrados: naoEncontrados, unidades: unidades };
+    }
+
+    function desenharPreviaImpPedido() {
+      if (!impPedEstado || !impPedPrev) return;
+      impPedPrev.textContent = '';
+      const tb = document.createElement('table');
+      tb.className = 'prev';
+      const cab = tb.createTHead().insertRow();
+      const th0 = document.createElement('th');
+      th0.className = 'n'; th0.textContent = 'Linha';
+      cab.appendChild(th0);
+      const ncols = impPedEstado.an.ncols;
+      for (let c = 0; c < ncols; c++) {
+        const th = document.createElement('th');
+        const ehCod = c === impPedEstado.colCod;
+        const ehQtd = c === impPedEstado.colQtd;
+        th.className = ehCod ? 'p-cod' : (ehQtd ? 'p-preco' : '');
+        th.appendChild(document.createTextNode(impPedEstado.an.colunas[c].letra));
+        if (ehCod) th.appendChild(el('span', 'papel', 'CÓDIGO'));
+        else if (ehQtd) th.appendChild(el('span', 'papel', 'QTD'));
+        cab.appendChild(th);
+      }
+      const corpo = tb.createTBody();
+      const de = Math.max(0, impPedEstado.inicio - 2), ate = Math.min(impPedEstado.linhas.length, impPedEstado.inicio + 7);
+      for (let i = de; i < ate; i++) {
+        const tr = corpo.insertRow();
+        if (i < impPedEstado.inicio) tr.className = 'fora';
+        else if (i === impPedEstado.inicio) tr.className = 'inicio';
+        const td0 = tr.insertCell(); td0.className = 'n'; td0.textContent = String(i + 1);
+        const l = impPedEstado.linhas[i] || [];
+        for (let c = 0; c < ncols; c++) {
+          const td = tr.insertCell();
+          if (i >= impPedEstado.inicio) {
+            if (c === impPedEstado.colCod) td.className = 'p-cod';
+            else if (c === impPedEstado.colQtd) td.className = 'p-preco';
+          }
+          td.textContent = celulaPrevia(l[c]);
+        }
+      }
+      impPedPrev.appendChild(tb);
+    }
+
+    function renderizarModalImpPedido(tudo) {
+      if (!impPedEstado) return;
+      if (tudo) {
+        impPedPlanBloco.hidden = impPedEstado.planilhas.length < 2;
+        if (impPedEstado.planilhas.length > 1) {
+          impPedPlan.textContent = '';
+          impPedEstado.planilhas.forEach(function (pl, i) {
+            const o = document.createElement('option');
+            o.value = String(i);
+            o.textContent = pl.nome + ' · ' + plural(pl.linhas.length, 'linha', 'linhas');
+            impPedPlan.appendChild(o);
+          });
+          impPedPlan.value = String(impPedEstado.p);
+        }
+      }
+      const an = impPedEstado.an;
+      preencherSelectColsConv(impPedCod, an, 'Escolha a coluna do código…', impPedEstado.colCod);
+      preencherSelectColsConv(impPedQtd, an, 'Sem coluna (usar 1 un. em todos)', impPedEstado.colQtd);
+      impPedLinha.value = String(impPedEstado.inicio + 1);
+      desenharPreviaImpPedido();
+
+      const sim = simularImportacaoPedido();
+      impPedEstado.simulacao = sim;
+      if (impPedEstado.colCod < 0) {
+        impPedResumo.textContent = 'Escolha acima qual coluna tem o código dos produtos.';
+      } else if (!sim.itens.length && !sim.naoEncontrados.length) {
+        impPedResumo.textContent = 'Nenhum código encontrado a partir da linha ' + (impPedEstado.inicio + 1) + '.';
+      } else {
+        impPedResumo.textContent = plural(sim.itens.length, 'produto encontrado', 'produtos encontrados') +
+          ' (' + sim.unidades + ' un.)' +
+          (sim.naoEncontrados.length ? ' · ' + plural(sim.naoEncontrados.length, 'código não encontrado', 'códigos não encontrados') : '');
+      }
+      btImpPedConfirmar.disabled = sim.itens.length === 0;
+    }
+
+    function abrirModalImpPedidoCli(res, nomeArq) {
+      const pl0 = res.planilhas[0];
+      const det = detectarColunasPedidoCliente(pl0.linhas);
+      impPedEstado = {
+        arq: nomeArq,
+        planilhas: res.planilhas,
+        p: 0,
+        linhas: pl0.linhas,
+        an: det.an,
+        inicio: det.inicio,
+        colCod: det.colCod,
+        colQtd: det.colQtd,
+        simulacao: null
+      };
+      erroImpPed.hidden = true;
+      renderizarModalImpPedido(true);
+      dlgFundo.hidden = false;
+      modalImpPedidoCli.hidden = false;
+    }
+
+    function fecharModalImpPedidoCli() {
+      if (!modalImpPedidoCli || modalImpPedidoCli.hidden) return;
+      modalImpPedidoCli.hidden = true;
+      impPedEstado = null;
+      if (!dlgAberto && (!menuTab || menuTab.hidden) && (!modalItensAviso || modalItensAviso.hidden) && !modalVariacoesAberto && (!modalEditarCliente || modalEditarCliente.hidden) && (!modalEnviarEmail || modalEnviarEmail.hidden) && (!modalConvCli || modalConvCli.hidden)) {
+        dlgFundo.hidden = true;
+      }
+    }
+
+    function confirmarImportacaoPedidoCli() {
+      if (!impPedEstado || !impPedEstado.simulacao) return;
+      const sim = impPedEstado.simulacao;
+      if (!sim.itens.length) return;
+      const nomeArq = impPedEstado.arq || 'planilha';
+      let adicionados = 0, somados = 0;
+
+      sim.itens.forEach(function (item) {
+        let ja = itemDoPedido(item.p);
+        if (ja) {
+          ja.qtd += item.qtd;
+          somados++;
+        } else {
+          pedido.push({
+            p: item.p,
+            qtd: item.qtd,
+            preco: item.preco,
+            precoNome: item.precoNome,
+            precoIdx: item.precoIdx,
+            dscItem: null
+          });
+          adicionados++;
+        }
+      });
+
+      const naoEnc = sim.naoEncontrados.slice();
+      fecharModalImpPedidoCli();
+      campoProd.value = '';
+      trocarEtapa(null);
+      renderizarProdutos();
+
+      const totalImp = adicionados + somados;
+      if (naoEnc.length > 0) {
+        avisar(plural(totalImp, 'item importado', 'itens importados') + ' · ' + plural(naoEnc.length, 'não encontrado', 'não encontrados') + '.');
+        abrirModalItensTabela({
+          tipo: 'naoEncontrados',
+          itens: naoEnc,
+          titulo: plural(naoEnc.length, 'Código não importado', 'Códigos não importados'),
+          subtitulo: nomeCurto(nomeArq) + ' · ' + plural(totalImp, 'produto foi adicionado', 'produtos foram adicionados') + ' ao pedido, mas os códigos abaixo não entraram:'
+        });
+      } else {
+        avisar(plural(totalImp, 'produto importado', 'produtos importados') + ' (' + sim.unidades + ' un.) com sucesso!');
+      }
+    }
+
+    if ($('btImpPedidoCli')) {
+      $('btImpPedidoCli').addEventListener('click', function () {
+        if (estadoDaTabela() !== 'ok') {
+          avisar('Aguarde o carregamento da tabela da fábrica.');
+          return;
+        }
+        arqImpPedidoCli.value = '';
+        arqImpPedidoCli.click();
+      });
+    }
+    if (arqImpPedidoCli) {
+      arqImpPedidoCli.addEventListener('change', function () {
+        const arq = arqImpPedidoCli.files && arqImpPedidoCli.files[0];
+        if (!arq) return;
+        avisarFixo('Lendo pedido do cliente…');
+        lerArquivoTabela(arq, function (msg) { avisarFixo(msg); }).then(function (res) {
+          esconderAviso();
+          abrirModalImpPedidoCli(res, arq.name);
+        }).catch(function (e) {
+          esconderAviso();
+          confirmar({ titulo: 'Não deu para abrir o arquivo', texto: mensagemErroPlanilha(e), sim: 'OK', nao: null });
+        });
+      });
+    }
+    if (impPedPlan) {
+      impPedPlan.addEventListener('change', function () {
+        if (!impPedEstado) return;
+        impPedEstado.p = parseInt(impPedPlan.value, 10) || 0;
+        const pl = impPedEstado.planilhas[impPedEstado.p];
+        const det = detectarColunasPedidoCliente(pl.linhas);
+        impPedEstado.linhas = pl.linhas;
+        impPedEstado.an = det.an;
+        impPedEstado.inicio = det.inicio;
+        impPedEstado.colCod = det.colCod;
+        impPedEstado.colQtd = det.colQtd;
+        renderizarModalImpPedido(false);
+      });
+    }
+    if ($('impPedMenos')) {
+      $('impPedMenos').addEventListener('click', function () {
+        if (!impPedEstado) return;
+        impPedEstado.inicio = Math.max(0, impPedEstado.inicio - 1);
+        renderizarModalImpPedido(false);
+      });
+    }
+    if ($('impPedMais')) {
+      $('impPedMais').addEventListener('click', function () {
+        if (!impPedEstado) return;
+        const max = Math.max(0, impPedEstado.linhas.length - 1);
+        impPedEstado.inicio = Math.min(max, impPedEstado.inicio + 1);
+        renderizarModalImpPedido(false);
+      });
+    }
+    if (impPedLinha) {
+      impPedLinha.addEventListener('change', function () {
+        if (!impPedEstado) return;
+        const max = Math.max(1, impPedEstado.linhas.length);
+        const n = Math.min(max, Math.max(1, parseInt(impPedLinha.value, 10) || 1));
+        impPedEstado.inicio = n - 1;
+        renderizarModalImpPedido(false);
+      });
+    }
+    if (impPedCod) {
+      impPedCod.addEventListener('change', function () {
+        if (!impPedEstado) return;
+        impPedEstado.colCod = parseInt(impPedCod.value, 10);
+        if (impPedEstado.colCod >= 0 && impPedEstado.colQtd === impPedEstado.colCod) impPedEstado.colQtd = -1;
+        renderizarModalImpPedido(false);
+      });
+    }
+    if (impPedQtd) {
+      impPedQtd.addEventListener('change', function () {
+        if (!impPedEstado) return;
+        impPedEstado.colQtd = parseInt(impPedQtd.value, 10);
+        if (impPedEstado.colQtd >= 0 && impPedEstado.colCod === impPedEstado.colQtd) impPedEstado.colCod = -1;
+        renderizarModalImpPedido(false);
+      });
+    }
+    if ($('btImpPedCancelar')) $('btImpPedCancelar').addEventListener('click', fecharModalImpPedidoCli);
+    if (btImpPedConfirmar) btImpPedConfirmar.addEventListener('click', confirmarImportacaoPedidoCli);
   </script>
   <script src="dados.js"></script>
   <script src="tabelas_padrao.js"></script>
