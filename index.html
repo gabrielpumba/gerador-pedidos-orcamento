@@ -2477,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v68 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v69 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -3803,14 +3803,15 @@
         bt.className = 'modal-var-op';
         const nomeSpan = document.createElement('span');
         nomeSpan.className = 'modal-var-op-nome';
-        nomeSpan.textContent = r.nome;
-        bt.appendChild(nomeSpan);
+        let rotuloPrincipal = r.nome;
         let tagTexto = '';
-        if (/\bES\b/i.test(r.nome)) tagTexto = 'Espírito Santo';
-        else if (/\bRJ\b/i.test(r.nome)) tagTexto = 'Rio de Janeiro';
-        else if (/\bSP\b/i.test(r.nome)) tagTexto = 'São Paulo';
-        else if (/\bMG\b/i.test(r.nome)) tagTexto = 'Minas Gerais';
-        else if (grupo.reps.length > 1) tagTexto = 'RJ / Geral';
+        if (/\bES\b/i.test(r.nome)) { rotuloPrincipal = 'Espírito Santo'; tagTexto = 'ES'; }
+        else if (/\bRJ\b/i.test(r.nome)) { rotuloPrincipal = 'Rio de Janeiro'; tagTexto = 'RJ'; }
+        else if (/\bSP\b/i.test(r.nome)) { rotuloPrincipal = 'São Paulo'; tagTexto = 'SP'; }
+        else if (/\bMG\b/i.test(r.nome)) { rotuloPrincipal = 'Minas Gerais'; tagTexto = 'MG'; }
+        else if (grupo.reps.length > 1) { rotuloPrincipal = 'Rio de Janeiro'; tagTexto = 'RJ'; }
+        nomeSpan.textContent = rotuloPrincipal;
+        bt.appendChild(nomeSpan);
         if (tagTexto) {
           const tagSpan = document.createElement('span');
           tagSpan.className = 'modal-var-op-tag';
@@ -7870,7 +7871,7 @@
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
-      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 68;
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 69;
       const verTelaStr = 'okada-v' + verTelaNum;
 
       try {
