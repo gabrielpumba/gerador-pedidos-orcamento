@@ -2477,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v67 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v68 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -3307,7 +3307,8 @@
         <div class="conv-rodape-bts">
           <button class="conv-rodape-bt sec" id="convLimpar" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-lixeira"/></svg><span>Limpar</span></button>
           <button class="conv-rodape-bt sec" id="convCopiar" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-arquivo"/></svg><span>Copiar</span></button>
-          <button class="conv-rodape-bt" id="convCsv" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-baixar"/></svg><span>Exportar Excel</span></button>
+          <button class="conv-rodape-bt sec" id="convCsv" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-planilha"/></svg><span>Excel</span></button>
+          <button class="conv-rodape-bt" id="convPdf" type="button" disabled><svg class="ic" aria-hidden="true"><use href="#i-baixar"/></svg><span>Gerar PDF</span></button>
         </div>
       </div>
     </div>
@@ -3532,10 +3533,6 @@
           <label class="modal-editar-cliente-rot" for="convCliLinha">Linha inicial</label>
           <input class="email-campo" id="convCliLinha" type="number" min="1" value="2">
         </div>
-      </div>
-      <div>
-        <label class="modal-editar-cliente-rot" for="convCliQtd">Coluna de quantidade (opcional)</label>
-        <select class="email-campo" id="convCliQtd"></select>
       </div>
     </div>
     <p class="dlg-erro" id="erroConvCli" role="alert" hidden></p>
@@ -7873,7 +7870,7 @@
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
-      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 67;
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 68;
       const verTelaStr = 'okada-v' + verTelaNum;
 
       try {
@@ -12759,11 +12756,11 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     }
     function regEnviar() {                                       // WhatsApp (pela lista de aplicativos do celular)
       if (!vp || !vp.o || !vp.o.bytes) return;
-      const r = vp.o.registro || (finPdf ? { nome: finPdf.nome, numero: finPdf.numero, fab: (representada ? representada.nome : ''), cli: (distribuidoraEscolhida ? distribuidoraEscolhida.nome : ''), ts: Date.now() } : null);
+      const r = vp.o.registro || (vp.o.nomeArquivo ? { nome: vp.o.nomeArquivo, fab: '', cli: '', ts: Date.now(), textoCustom: vp.o.textoEnvio || vp.o.titulo || 'Conversão de Códigos' } : (finPdf ? { nome: finPdf.nome, numero: finPdf.numero, fab: (representada ? representada.nome : ''), cli: (distribuidoraEscolhida ? distribuidoraEscolhida.nome : ''), ts: Date.now() } : null));
       if (!r) return;
       const bytes = vp.o.bytes;
-      const titulo = (r.fab ? rotuloReg(r) + ' ' + r.numero + ' - ' + r.fab : (vp.o.titulo || 'Pedido'));
-      const texto = regTextoEnvio(r);
+      const titulo = r.textoCustom ? (vp.o.titulo || 'Conversão de Códigos') : (r.fab ? rotuloReg(r) + ' ' + r.numero + ' - ' + r.fab : (vp.o.titulo || 'Pedido'));
+      const texto = r.textoCustom || regTextoEnvio(r);
       let arquivo = null;
       try { arquivo = new File([new Blob([bytes], { type: 'application/pdf' })], r.nome, { type: 'application/pdf' }); } catch (e) { arquivo = null; }
       let pode = false;
@@ -13056,8 +13053,8 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     if ($('vpEmail')) {
       $('vpEmail').addEventListener('click', function () {
         if (!vp || !vp.o || !vp.o.bytes) return;
-        const r = vp.o.registro || (finPdf ? { nome: finPdf.nome, numero: finPdf.numero, fab: (representada ? representada.nome : ''), cli: (distribuidoraEscolhida ? distribuidoraEscolhida.nome : ''), ts: Date.now() } : null);
-        const nomePdf = (r && r.nome) || ((vp.o.titulo ? vp.o.titulo.replace(/[^\w\d\-_ ]/g, '_') : 'Pedido') + '.pdf');
+        const r = vp.o.registro || (vp.o.nomeArquivo ? null : (finPdf ? { nome: finPdf.nome, numero: finPdf.numero, fab: (representada ? representada.nome : ''), cli: (distribuidoraEscolhida ? distribuidoraEscolhida.nome : ''), ts: Date.now() } : null));
+        const nomePdf = vp.o.nomeArquivo || (r && r.nome) || ((vp.o.titulo ? vp.o.titulo.replace(/[^\w\d\-_ ]/g, '_') : 'Pedido') + '.pdf');
         const cliNome = (r && r.cli) || (distribuidoraEscolhida ? distribuidoraEscolhida.nome : '');
         const fabNome = (r && r.fab) || (representada ? representada.nome : '');
         const cliCad = CADASTRO.find(function (c) { return (c.nome || '').toLowerCase().trim() === (cliNome || '').toLowerCase().trim(); });
@@ -13066,8 +13063,8 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         if (r && r.distribuidora && r.distribuidora.emailNfe) sugEmails.push(r.distribuidora.emailNfe);
         if (cliCad && cliCad.email) sugEmails.push(cliCad.email);
         if (cliCad && cliCad.emailNfe) sugEmails.push(cliCad.emailNfe);
-        const assunto = (r && r.numero ? rotuloReg(r) + ' Nº ' + r.numero : (vp.o.titulo || 'Pedido')) + (fabNome ? ' - ' + fabNome : '') + (cliNome ? ' - ' + cliNome : '');
-        const texto = r ? regTextoEnvio(r) : (vp.o.titulo || 'Pedido');
+        const assunto = vp.o.nomeArquivo ? (vp.o.titulo + (vp.o.sub ? ' - ' + vp.o.sub : '')) : ((r && r.numero ? rotuloReg(r) + ' Nº ' + r.numero : (vp.o.titulo || 'Pedido')) + (fabNome ? ' - ' + fabNome : '') + (cliNome ? ' - ' + cliNome : ''));
+        const texto = vp.o.textoEnvio || (r ? regTextoEnvio(r) : (vp.o.titulo || 'Pedido'));
         abrirModalEnviarEmail({
           bytes: vp.o.bytes,
           nomePdf: nomePdf,
@@ -13079,7 +13076,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     }
     $('vpSalvar').addEventListener('click', function () {
       if (!vp || !vp.o || !vp.o.bytes) return;
-      const reg = vp.o.registro || { nome: (vp.o.titulo ? vp.o.titulo.replace(/[^\w\d\-_ ]/g, '_') : 'Pedido') + '.pdf' };
+      const reg = vp.o.registro || { nome: vp.o.nomeArquivo || ((vp.o.titulo ? vp.o.titulo.replace(/[^\w\d\-_ ]/g, '_') : 'Pedido') + '.pdf') };
       regSalvar(reg, vp.o.bytes, false);
     });
 
@@ -13359,7 +13356,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     const telaConv = $('telaConv'), telaConvTabs = $('telaConvTabs'), telaConvImp = $('telaConvImp');
     const convFabSelect = $('convFabSelect'), convBtImpCli = $('convBtImpCli'), convConcBar = $('convConcBar'), convConcChips = $('convConcChips');
     const convBusca = $('convBusca'), convSug = $('convSug'), convLista = $('convLista'), convVazio = $('convVazio');
-    const convResumo = $('convResumo'), convLimpar = $('convLimpar'), convCopiar = $('convCopiar'), convCsv = $('convCsv');
+    const convResumo = $('convResumo'), convLimpar = $('convLimpar'), convCopiar = $('convCopiar'), convCsv = $('convCsv'), convPdf = $('convPdf');
     const convTabsLista = $('convTabsLista'), convArquivo = $('convArquivo');
     const convImpFab = $('convImpFab'), convImpPlanBloco = $('convImpPlanBloco'), convImpPlan = $('convImpPlan');
     const convImpPrev = $('convImpPrev'), convImpLinha = $('convImpLinha'), convImpCod = $('convImpCod'), convImpDesc = $('convImpDesc');
@@ -13689,12 +13686,8 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         const topo = el('div', 'conv-card-topo');
         const esq = el('div', '');
         esq.style.minWidth = '0';
-        esq.appendChild(el('div', 'conv-card-cod', it.naoEncontrado ? ('Não encontrado: ' + it.buscaOrig) : it.cod));
-        const metaPartes = [];
-        if (it.fabNome) metaPartes.push(it.fabNome);
-        if (it.qtd) metaPartes.push('Qtd: ' + it.qtd);
-        if (it.buscaOrig && !it.naoEncontrado) metaPartes.push('Busca: ' + it.buscaOrig);
-        if (metaPartes.length) esq.appendChild(el('div', 'conv-card-meta', metaPartes.join(' · ')));
+        const rotFab = (it.fabNome || nomeCanonicoConv(convFabAtual) || 'Nossa Fábrica').toUpperCase();
+        esq.appendChild(el('div', 'conv-card-cod', it.naoEncontrado ? ('Não encontrado: ' + it.buscaOrig) : (rotFab + ': ' + it.cod)));
         topo.appendChild(esq);
 
         const bts = el('div', 'conv-card-bts');
@@ -13740,38 +13733,45 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       convLimpar.disabled = convItensLista.length === 0;
       convCopiar.disabled = convItensLista.length === 0;
       convCsv.disabled = convItensLista.length === 0;
+      if (convPdf) convPdf.disabled = convItensLista.length === 0;
+    }
+
+    function nomeNossaFabricaConv() {
+      if (convFabAtual) return nomeCanonicoConv(convFabAtual).toUpperCase();
+      const comFab = convItensLista.find(function (x) { return x && x.fabNome; });
+      return comFab ? comFab.fabNome.toUpperCase() : 'NOSSA FÁBRICA';
     }
 
     function textoExportacaoConv() {
       const ativas = concsAtivasLista();
+      const nomeA = nomeNossaFabricaConv();
       const linhas = [];
       convItensLista.forEach(function (it) {
         if (it.naoEncontrado) {
-          linhas.push('[NÃO ENCONTRADO] ' + it.buscaOrig + (it.qtd ? ' (Qtd: ' + it.qtd + ')' : ''));
+          linhas.push('[NÃO ENCONTRADO] ' + it.buscaOrig);
           return;
         }
+        const fabRot = (it.fabNome || nomeA).toUpperCase();
         const eqTxt = ativas.map(function (c) {
           const v = it.eq && it.eq[c];
-          return v ? (c + ': ' + v) : '';
-        }).filter(Boolean).join(' | ');
-        linhas.push(it.cod + (it.qtd ? ' (Qtd: ' + it.qtd + ')' : '') + (eqTxt ? ' [' + eqTxt + ']' : ''));
+          return c + ': ' + (v || '—');
+        }).join('  |  ');
+        linhas.push(fabRot + ': ' + it.cod + (eqTxt ? '   ×   ' + eqTxt : ''));
       });
       return linhas.join('\n');
     }
 
     function exportarCsvConv() {
       const ativas = concsAtivasLista();
+      const nomeA = nomeNossaFabricaConv();
       function escCsv(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
-      const cab = ['Fábrica', 'Nosso Código', 'Qtd', 'Código Buscado'].concat(ativas);
+      const cab = [nomeA].concat(ativas);
       const linhas = [cab.map(escCsv).join(';')];
       convItensLista.forEach(function (it) {
-        const row = [
-          it.fabNome || '',
-          it.naoEncontrado ? 'NÃO ENCONTRADO' : it.cod,
-          it.qtd || '',
-          it.buscaOrig || ''
-        ];
-        ativas.forEach(function (c) { row.push((it.eq && it.eq[c]) || ''); });
+        const row = [it.naoEncontrado ? ('NÃO ENCONTRADO (' + it.buscaOrig + ')') : it.cod];
+        ativas.forEach(function (c) {
+          row.push(it.naoEncontrado ? (it.buscaOrig || '—') : ((it.eq && it.eq[c]) || '—'));
+        });
         linhas.push(row.map(escCsv).join(';'));
       });
       const bom = '\uFEFF' + linhas.join('\r\n');
@@ -13779,10 +13779,163 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'conversao-codigos-' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.download = 'conversao-' + normalizar(nomeA).replace(/[^a-z0-9]+/g, '-') + '-' + new Date().toISOString().slice(0, 10) + '.csv';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
       avisar('Planilha Excel (CSV) exportada!');
+    }
+
+    function montarPdfConversaoBytes(logoEmpresa, logoFabrica, nomeA, ativas, itens) {
+      const cols = [nomeA].concat(ativas);
+      const nCols = cols.length;
+      const subConcs = ativas.length ? ativas.join(' · ') : 'CONCORRENTES';
+      const dataHoje = new Date();
+      const doc = new PdfDoc('Conversão de Códigos - ' + nomeA + ' x ' + subConcs, 'Okada Representações');
+      const fx = pdfFonte('x'), fb = pdfFonte('b'), fm = pdfFonte('m');
+
+      // Largura das colunas: divide a largura útil (PDF_LC = 523pt) entre Nossa Fábrica e as Concorrentes selecionadas
+      const wCols = [];
+      if (nCols === 1) {
+        wCols.push(PDF_LC);
+      } else {
+        const w0 = Math.min(130, Math.max(76, Math.round(PDF_LC / nCols * 1.1)));
+        wCols.push(w0);
+        const wResto = (PDF_LC - w0) / (nCols - 1);
+        for (let c = 1; c < nCols; c++) wCols.push(wResto);
+      }
+      const xCols = [];
+      let accX = PDF_ME;
+      for (let c = 0; c < nCols; c++) { xCols.push(accX); accX += wCols[c]; }
+
+      function desenharTopoTabela(pg, y) {
+        const hCab = 22;
+        pg.caixa(PDF_ME, y, PDF_LC, hCab, { preencher: PDF_COR.grena, raio: 5 });
+        const tamTit = nCols > 7 ? 6.0 : (nCols > 5 ? 6.5 : 7.4);
+        for (let c = 0; c < nCols; c++) {
+          const rot = pdfCortar(fx, String(cols[c] || '').toUpperCase(), tamTit, wCols[c] - 8);
+          pg.texto(rot, xCols[c] + 6, y + 14.2, { fonte: 'x', tam: tamTit, cor: PDF_COR.branco, esp: 0.4 });
+        }
+        return y + hCab;
+      }
+
+      function novaFolhaConv(primeira) {
+        const pg = doc.novaPagina();
+        let y = 0;
+        if (primeira) {
+          const lw = 98;
+          pg.caixa(0, 0, PDF_L, 6, { preencher: PDF_COR.grena });
+          if (logoEmpresa) pg.imagem(logoEmpresa, PDF_ME, 16, lw, 50);
+          else pg.texto('OKADA', PDF_ME, 48, { fonte: 'x', tam: 27, cor: PDF_COR.grena });
+          const xc = PDF_ME + lw + 18;
+          pg.linha(xc - 9, 19, xc - 9, 63, PDF_COR.linha, 0.8);
+          [['Fone', PDF_EMPRESA.fone], ['Celular', PDF_EMPRESA.celular], ['E-mail', PDF_EMPRESA.email], ['Cidade', PDF_EMPRESA.cidade]].forEach(function (par, i) {
+            pg.texto(par[0], xc, 26.5 + i * 11.4, { fonte: 'm', tam: 7, cor: PDF_COR.tinta2 });
+            pg.texto(par[1], xc + 34, 26.5 + i * 11.4, { fonte: 'b', tam: 7.6, cor: PDF_COR.tinta });
+          });
+          pg.texto('CONVERSÃO DE CÓDIGOS', PDF_L - PDF_MD, 28, { fonte: 'x', tam: 8.5, cor: PDF_COR.grena, alinhar: 'd', esp: 1.4 });
+          pg.texto(pdfCortar(fx, nomeA, 16, 175), PDF_L - PDF_MD, 48, { fonte: 'x', tam: 16, cor: PDF_COR.tinta, alinhar: 'd' });
+          pg.texto(pdfDataBR(dataHoje), PDF_L - PDF_MD, 62, { fonte: 'b', tam: 8.6, cor: PDF_COR.tinta2, alinhar: 'd' });
+          pg.linha(PDF_ME, 70, PDF_L - PDF_MD, 70, PDF_COR.linha, 0.8);
+          y = 80;
+
+          // Faixa da representada x concorrentes
+          const hFaixa = 40;
+          pg.caixa(PDF_ME, y, PDF_LC, hFaixa, { preencher: PDF_COR.fundo, raio: 8 });
+          let xTxt = PDF_ME + 12;
+          if (logoFabrica) {
+            pg.caixa(PDF_ME + 10, y + 4, 60, 32, { preencher: PDF_COR.branco, raio: 6, borda: PDF_COR.linha, larg: 0.6 });
+            pg.imagem(logoFabrica, PDF_ME + 14, y + 8, 52, 24);
+            xTxt = PDF_ME + 78;
+          }
+          pg.texto('NOSSA REPRESENTADA (A)', xTxt, y + 13, { fonte: 'x', tam: 5.8, cor: PDF_COR.grena, esp: 0.9 });
+          pg.texto(pdfCortar(fx, nomeA, 11, 150), xTxt, y + 27, { fonte: 'x', tam: 11, cor: PDF_COR.tinta });
+
+          const xDiv = PDF_ME + 235;
+          pg.linha(xDiv, y + 8, xDiv, y + hFaixa - 8, PDF_COR.linha, 0.8);
+          pg.texto('CONCORRENTE(S) COMPARADA(S)', xDiv + 12, y + 13, { fonte: 'x', tam: 5.8, cor: PDF_COR.tinta2, esp: 0.9 });
+          pg.texto(pdfCortar(fb, subConcs, 9.5, PDF_ME + PDF_LC - xDiv - 20), xDiv + 12, y + 27, { fonte: 'b', tam: 9.5, cor: PDF_COR.tinta });
+          y += hFaixa + 10;
+        } else {
+          pg.caixa(0, 0, PDF_L, 5, { preencher: PDF_COR.grena });
+          if (logoEmpresa) pg.imagem(logoEmpresa, PDF_ME, 14, 66, 34);
+          pg.texto('CONVERSÃO DE CÓDIGOS · ' + nomeA, PDF_L - PDF_MD, 30, { fonte: 'x', tam: 10, cor: PDF_COR.grena, alinhar: 'd', esp: 0.5 });
+          pg.texto(pdfCortar(fm, subConcs, 8, 330), PDF_L - PDF_MD, 43, { fonte: 'm', tam: 8, cor: PDF_COR.tinta2, alinhar: 'd' });
+          pg.linha(PDF_ME, 54, PDF_L - PDF_MD, 54, PDF_COR.linha, 0.8);
+          y = 66;
+        }
+        y = desenharTopoTabela(pg, y);
+        return { pg: pg, y: y };
+      }
+
+      let estado = novaFolhaConv(true);
+      let pg = estado.pg, y = estado.y;
+      const tamCel = nCols > 7 ? 7.2 : (nCols > 5 ? 8.0 : 9.2);
+      const passoLin = tamCel + 2.2;
+
+      itens.forEach(function (it, idx) {
+        const valores = [it.naoEncontrado ? ('NÃO ENC. (' + (it.buscaOrig || '') + ')') : (it.cod || '—')];
+        ativas.forEach(function (c) {
+          valores.push(it.naoEncontrado ? (it.buscaOrig || '—') : ((it.eq && it.eq[c]) || '—'));
+        });
+        const linhasPorCol = valores.map(function (v, c) {
+          const fonteUsar = c === 0 ? fx : fb;
+          return pdfLinhasMax(fonteUsar, pdfLimpo(String(v || '—')), tamCel, wCols[c] - 10, 3);
+        });
+        const maxLin = linhasPorCol.reduce(function (m, lns) { return Math.max(m, lns.length); }, 1);
+        const hRow = Math.max(22, 13 + (maxLin - 1) * passoLin + 7);
+
+        if (y + hRow > PDF_FIM) {
+          estado = novaFolhaConv(false);
+          pg = estado.pg;
+          y = estado.y;
+        }
+        if (idx % 2 === 1) {
+          pg.caixa(PDF_ME, y, PDF_LC, hRow, { preencher: PDF_COR.zebra });
+        }
+        linhasPorCol.forEach(function (lns, c) {
+          const corTxt = c === 0 ? (it.naoEncontrado ? PDF_COR.grena : PDF_COR.grena) : PDF_COR.tinta;
+          const fTxt = c === 0 ? 'x' : 'b';
+          lns.forEach(function (ln, li) {
+            pg.texto(ln, xCols[c] + 6, y + 14 + li * passoLin, { fonte: fTxt, tam: tamCel, cor: corTxt });
+          });
+        });
+        pg.linha(PDF_ME, y + hRow, PDF_ME + PDF_LC, y + hRow, PDF_COR.linha, 0.5);
+        y += hRow;
+      });
+
+      const totalPags = doc.paginas.length;
+      doc.paginas.forEach(function (p, i) {
+        p.linha(PDF_ME, 806, PDF_L - PDF_MD, 806, PDF_COR.linha, 0.6);
+        p.texto(PDF_EMPRESA.nome + '   ·   Conversão ' + nomeA + ' × ' + pdfCortar(fm, subConcs, 7, 260) + '   ·   ' + pdfDataBR(dataHoje), PDF_ME, 820, { fonte: 'm', tam: 7, cor: PDF_COR.tinta2 });
+        p.texto('Página ' + (i + 1) + ' de ' + totalPags, PDF_L - PDF_MD, 820, { fonte: 'b', tam: 7, cor: PDF_COR.tinta2, alinhar: 'd' });
+      });
+      return doc.salvar();
+    }
+
+    function gerarPdfConversao() {
+      if (!convItensLista.length) return;
+      const ativas = concsAtivasLista();
+      const nomeA = nomeNossaFabricaConv();
+      const idCan = idCanonicoConv(convFabAtual || (convItensLista[0] && convItensLista[0].fabId) || '');
+      const repObj = repPorId(idCan);
+      const logoFabSrc = repObj ? repObj.logo : null;
+      avisar('Gerando PDF da conversão…');
+      Promise.all([logoParaJpeg(LOGO_OKADA, 140), logoParaJpeg(logoFabSrc, 92)]).then(function (lgs) {
+        const bytes = montarPdfConversaoBytes(lgs[0], lgs[1], nomeA, ativas, convItensLista);
+        const subTxt = ativas.length ? (nomeA + ' × ' + ativas.join(', ')) : nomeA;
+        const nomeArq = 'CONVERSAO_' + palavrasDoNome(nomeA).join('-') + '_' + new Date().toISOString().slice(0, 10) + '.pdf';
+        abrirVerPdf({
+          bytes: bytes,
+          titulo: 'Conversão · ' + nomeA,
+          sub: ativas.length ? ('Concorrente(s): ' + ativas.join(', ')) : '',
+          rodape: true,
+          nomeArquivo: nomeArq,
+          textoEnvio: 'Conversão de Códigos · ' + subTxt + '\n' + plural(convItensLista.length, 'item', 'itens') + '\nOkada Representações'
+        });
+      }).catch(function (e) {
+        console.error(e);
+        avisar('Não foi possível gerar o PDF da conversão.');
+      });
     }
 
     // ---- Gerenciar & Importar Tabelas de Conversão ----
@@ -14039,14 +14192,10 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       convCliDados = {
         planilhas: res.planilhas, p: 0,
         det: detectarPlanilhaConv(res.planilhas[0].linhas),
-        colCod: 0, colQtd: -1, linha: 1
+        colCod: 0, linha: 1
       };
-      const an = convCliDados.det.an;
       convCliDados.colCod = convCliDados.det.colCod >= 0 ? convCliDados.det.colCod : 0;
       convCliDados.linha = convCliDados.det.inicio + 1;
-      an.colunas.forEach(function (c, k) {
-        if (k !== convCliDados.colCod && /\b(qtd|qtde|quant|quantidade|un|unid)\b/i.test(c.titulo || '')) convCliDados.colQtd = k;
-      });
       convCliPlanBloco.hidden = res.planilhas.length < 2;
       if (res.planilhas.length > 1) {
         convCliPlan.textContent = '';
@@ -14066,11 +14215,9 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       const pl = convCliDados.planilhas[convCliDados.p];
       const an = convCliDados.det.an;
       preencherSelectColsConv(convCliCod, an, null, convCliDados.colCod);
-      preencherSelectColsConv(convCliQtd, an, 'Não usar', convCliDados.colQtd);
       convCliLinha.value = String(convCliDados.linha);
       const dest = {};
       if (convCliDados.colCod >= 0) dest[convCliDados.colCod] = 'p-cod';
-      if (convCliDados.colQtd >= 0) dest[convCliDados.colQtd] = 'p-preco';
       desenharPreviaSimples(convCliPrev, pl.linhas, Math.max(0, convCliDados.linha - 1), dest);
     }
     function fecharModalConvCli() {
@@ -14086,7 +14233,6 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       const pl = convCliDados.planilhas[convCliDados.p];
       const ini = Math.max(0, (parseInt(convCliLinha.value, 10) || 1) - 1);
       const cCod = parseInt(convCliCod.value, 10);
-      const cQtd = parseInt(convCliQtd.value, 10);
       let convertidos = 0, naoEncontrados = 0;
       const novos = [];
 
@@ -14094,22 +14240,21 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         const l = pl.linhas[i] || [];
         const rawCod = String(l[cCod] == null ? '' : l[cCod]).trim();
         if (!rawCod) continue;
-        const qtdVal = cQtd >= 0 ? String(l[cQtd] == null ? '' : l[cQtd]).trim() : '';
         const achados = buscarItensConversor(rawCod).filter(function (m) { return m.pts >= 65; });
         if (achados.length > 0) {
           const m = achados[0];
           novos.push({
             id: Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6),
             fabId: m.fabId, fabNome: m.fabNome,
-            cod: m.item.cod, desc: m.item.desc, eq: m.item.eq,
-            qtd: qtdVal, buscaOrig: rawCod, naoEncontrado: false
+            cod: m.item.cod, eq: m.item.eq,
+            buscaOrig: rawCod, naoEncontrado: false
           });
           convertidos++;
         } else {
           novos.push({
             id: Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6),
-            fabId: '', fabNome: '', cod: '', desc: '', eq: null,
-            qtd: qtdVal, buscaOrig: rawCod, naoEncontrado: true
+            fabId: '', fabNome: '', cod: '', eq: null,
+            buscaOrig: rawCod, naoEncontrado: true
           });
           naoEncontrados++;
         }
@@ -14171,6 +14316,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     if (convLimpar) convLimpar.addEventListener('click', function () { convItensLista = []; renderizarListaConv(); });
     if (convCopiar) convCopiar.addEventListener('click', function () { copiarTextoSimples(textoExportacaoConv()); });
     if (convCsv) convCsv.addEventListener('click', exportarCsvConv);
+    if (convPdf) convPdf.addEventListener('click', gerarPdfConversao);
 
     if ($('convTabsAdicionar')) $('convTabsAdicionar').addEventListener('click', function () {
       convArquivoModo = 'tabela';
