@@ -2477,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v65 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v66 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -3281,11 +3281,14 @@
           <button class="conv-bt-cli" id="convBtImpCli" type="button"><svg class="ic" aria-hidden="true"><use href="#i-baixar"/></svg><span>Importar planilha do cliente</span></button>
         </div>
         <div class="conv-conc-bar" id="convConcBar" hidden>
+          <div class="conv-linha-fab" style="margin-bottom: 4px;">
+            <select class="conv-select" id="convParSelect" aria-label="Escolha o par de conversão (A x B, A x C ou 1+N)" style="min-height: 40px; font-size: 13.5px;"></select>
+          </div>
           <div class="conv-conc-topo">
-            <span>Concorrentes visíveis (clique para excluir/incluir):</span>
+            <span>Concorrentes (1+N) — clique para marcar/desmarcar:</span>
             <div class="conv-conc-acoes">
-              <button class="conv-conc-link" id="convConcTodas" type="button">Todas</button>
-              <button class="conv-conc-link" id="convConcNenhuma" type="button">Nenhuma</button>
+              <button class="conv-conc-link" id="convConcTodas" type="button">Marcar todas</button>
+              <button class="conv-conc-link" id="convConcNenhuma" type="button">Desmarcar todas</button>
             </div>
           </div>
           <div class="conv-conc-chips" id="convConcChips"></div>
@@ -3355,12 +3358,12 @@
         </div>
       </div>
       <div class="fcampo">
-        <label class="rotulo" for="convImpCod">Qual coluna é o CÓDIGO DA NOSSA FÁBRICA?</label>
+        <label class="rotulo" for="convImpCod">Qual coluna é o CÓDIGO DA NOSSA REPRESENTADA (A)?</label>
         <select class="campo" id="convImpCod"></select>
       </div>
       <div class="fcampo">
         <div class="imp-preco-cab">
-          <label class="rotulo">Colunas dos CÓDIGOS DAS CONCORRENTES</label>
+          <label class="rotulo">Colunas das CONCORRENTES (B, C, D… — 1+N)</label>
           <button class="bt-add-preco" id="convImpAddConc" type="button"><svg class="ic" aria-hidden="true"><use href="#i-mais"/></svg><span>Adicionar concorrente</span></button>
         </div>
         <div id="convImpConcsLista" style="display: grid; gap: 8px;"></div>
@@ -7870,7 +7873,7 @@
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
-      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 65;
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 66;
       const verTelaStr = 'okada-v' + verTelaNum;
 
       try {
@@ -13455,12 +13458,43 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
 
     function renderizarChipsConcorrentes() {
       const concs = concorrentesDisponiveis();
+      const convParSelect = $('convParSelect');
       if (!concs.length) {
         convConcBar.hidden = true;
         return;
       }
       convConcBar.hidden = false;
       convConcChips.textContent = '';
+
+      const repA = convFabAtual ? repPorId(convFabAtual) : null;
+      const nomeA = repA ? repA.nome.toUpperCase() : 'NOSSA FÁBRICA (A)';
+
+      if (convParSelect) {
+        convParSelect.textContent = '';
+        const ativas = concs.filter(function (c) { return !convConcsOcultas[c]; });
+        const opMulti = document.createElement('option');
+        opMulti.value = '__multi__';
+        opMulti.textContent = ativas.length === concs.length
+          ? (nomeA + ' × TODAS AS CONCORRENTES (' + concs.length + ')')
+          : (ativas.length > 1
+              ? (nomeA + ' × ' + ativas.length + ' CONCORRENTES (' + ativas.join(', ') + ')')
+              : (ativas.length === 1 ? (nomeA + ' × ' + ativas[0]) : (nomeA + ' × (Nenhuma selecionada)')));
+        convParSelect.appendChild(opMulti);
+
+        const opAll = document.createElement('option');
+        opAll.value = '__all__';
+        opAll.textContent = 'Mostrar todas: ' + nomeA + ' × (1+' + concs.length + ' concorrentes)';
+        convParSelect.appendChild(opAll);
+
+        concs.forEach(function (c) {
+          const op = document.createElement('option');
+          op.value = c;
+          op.textContent = 'Somente ' + nomeA + ' × ' + c;
+          convParSelect.appendChild(op);
+        });
+        convParSelect.value = (ativas.length === 1 && concs.indexOf(ativas[0]) !== -1) ? ativas[0] : '__multi__';
+      }
+
       concs.forEach(function (nome) {
         const off = !!convConcsOcultas[nome];
         const bt = el('button', 'conv-chip' + (off ? ' off' : ''));
@@ -13753,41 +13787,96 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
 
     const RE_COLUNA_NAO_CONCORRENTE = /\b(pre[cç]o|valor|vlr|r\$|vista|prazo|l[ií]quid|brut|unit|total|custo|descri[cç]|produto|aplic|nome|ipi|icms|st|ncm|cfop|cest|ean|gtin|barra|unid|un|emb|embalagem|caixa|cx|mult|m[uú]lt|peso|estq|estoque|qtd|qtde|quant|data|obs|p[aá]g|moeda)\b/i;
 
-    function ehColunaPrecoOuIgnoradaConv(cInfo) {
-      if (!cInfo || !cInfo.n) return true;
+    function ehColunaPrecoOuIgnoradaConv(cInfo, temValorNaPlanilhaToda) {
+      if (!cInfo) return true;
+      const titRaw = String(cInfo.titulo || '').trim();
+      const tit = normalizar(titRaw);
+      // 1) Se o cabeçalho tiver palavras de preço, imposto, descrição ou embalagem, ignora sempre
+      if (tit && (RE_COLUNA_NAO_CONCORRENTE.test(tit) || /r\$|icms/.test(tit))) return true;
+      // 2) Se as amostras contêm "R$" explícito, é coluna de preço
+      if (Array.isArray(cInfo.amostra) && cInfo.amostra.some(function (a) { return /R\$/i.test(String(a || '')); })) return true;
+      // 3) Se a coluna tem um título válido (ex.: SIDEM, ZM, BORTEC, CODIGO ANTIGO, HOLYMAN, SÓLOPES, DRAYTON, NAKATA, ZF), NÃO ignora mesmo que as primeiras linhas estejam vazias ou os códigos tenham pontos (ex: 370.114.58)
+      if (tit && tit.length >= 2) {
+        if (cInfo.papel === 'preco') return true;
+        if (cInfo.parteTexto >= 0.7 && cInfo.medio > 28) return true; // texto longo de descrição/aplicação
+        return false;
+      }
+      // 4) Sem título no cabeçalho: só aceita se tiver valores na planilha e não parecer preço nem descrição longa
+      if (!cInfo.n && !temValorNaPlanilhaToda) return true;
       if (cInfo.papel === 'preco' || cInfo.papel === 'desc') return true;
-      const tit = normalizar(cInfo.titulo || '');
-      if (RE_COLUNA_NAO_CONCORRENTE.test(tit) || /r\$/.test(tit)) return true;
-      // Colunas numéricas com casas decimais são preços/impostos, não códigos de peças
-      if (cInfo.parteDec >= 0.25 && cInfo.parteNum >= 0.6) return true;
-      // Colunas de texto longo são descrições/aplicações, não códigos
-      if (cInfo.parteTexto >= 0.6 && cInfo.medio > 22) return true;
-      // Amostras com "R$" são preços
-      if (Array.isArray(cInfo.amostra) && cInfo.amostra.some(function (a) { return /R\$|^\d+[,.]\d{2}$/.test(String(a || '').trim()); }) && cInfo.parteDec >= 0.15) return true;
+      if (cInfo.parteDec >= 0.35 && cInfo.parteNum >= 0.7) return true;
+      if (cInfo.parteTexto >= 0.6 && cInfo.medio > 24) return true;
       return false;
     }
 
-    function detectarPlanilhaConv(linhas) {
+    function adivinharFabPorColunasPlanilha(an) {
+      if (!an || !Array.isArray(an.colunas)) return '';
+      for (let c = 0; c < an.colunas.length; c++) {
+        const tit = normalizar(an.colunas[c].titulo || '').trim();
+        if (!tit || tit.length < 2) continue;
+        for (let r = 0; r < REPS.length; r++) {
+          const nomeFab = normalizar(REPS[r].nome || '').replace(/\s*-\s*es$/, '').trim();
+          if (nomeFab && (tit === nomeFab || tit.indexOf(nomeFab) !== -1)) {
+            return REPS[r].id;
+          }
+        }
+      }
+      return '';
+    }
+
+    function colunaDaRepresentadaNaPlanilha(an, fabId) {
+      if (!an || !Array.isArray(an.colunas) || !fabId) return -1;
+      const rep = repPorId(fabId);
+      if (!rep) return -1;
+      const nomeFab = normalizar(rep.nome || '').replace(/\s*-\s*es$/, '').trim();
+      if (!nomeFab) return -1;
+      for (let c = 0; c < an.colunas.length; c++) {
+        const tit = normalizar(an.colunas[c].titulo || '').trim();
+        if (tit && (tit === nomeFab || tit.indexOf(nomeFab) !== -1)) return c;
+      }
+      return -1;
+    }
+
+    function detectarPlanilhaConv(linhas, fabId) {
       const an = analisarPlanilha(linhas);
-      let colCod = -1;
-      an.colunas.forEach(function (c, k) {
-        if (c.papel === 'cod' && colCod < 0) colCod = k;
-      });
+      // Verifica em TODAS as linhas da planilha quais colunas possuem algum valor preenchido (ex.: SIDEM ou NAKATA podem só ter códigos mais para baixo)
+      const temValorCol = {};
+      for (let i = an.inicio; i < linhas.length; i++) {
+        const l = linhas[i] || [];
+        for (let c = 0; c < an.ncols; c++) {
+          if (!temValorCol[c] && l[c] !== null && l[c] !== undefined && String(l[c]).trim() !== '') {
+            temValorCol[c] = true;
+          }
+        }
+      }
+
+      let colCod = colunaDaRepresentadaNaPlanilha(an, fabId);
+      if (colCod < 0) {
+        const fabAuto = adivinharFabPorColunasPlanilha(an);
+        if (fabAuto) colCod = colunaDaRepresentadaNaPlanilha(an, fabAuto);
+      }
+      if (colCod < 0) {
+        an.colunas.forEach(function (c, k) {
+          if (c.papel === 'cod' && colCod < 0 && !ehColunaPrecoOuIgnoradaConv(c, temValorCol[k])) colCod = k;
+        });
+      }
       if (colCod < 0) {
         for (let c = 0; c < an.ncols; c++) {
-          if (!ehColunaPrecoOuIgnoradaConv(an.colunas[c])) { colCod = c; break; }
+          if (!ehColunaPrecoOuIgnoradaConv(an.colunas[c], temValorCol[c])) { colCod = c; break; }
         }
       }
       if (colCod < 0 && an.ncols > 0) colCod = 0;
+
       const concs = [];
       for (let c = 0; c < an.ncols; c++) {
         if (c === colCod) continue;
         const colInfo = an.colunas[c];
-        if (ehColunaPrecoOuIgnoradaConv(colInfo)) continue;
+        if (ehColunaPrecoOuIgnoradaConv(colInfo, temValorCol[c])) continue;
+        if (!temValorCol[c] && !(colInfo && colInfo.titulo)) continue;
         const tit = (colInfo && colInfo.titulo) || ('Concorrente ' + (concs.length + 1));
         concs.push({ col: c, nome: tit.slice(0, 35) });
       }
-      return { an: an, inicio: an.inicio, colCod: colCod, concs: concs };
+      return { an: an, inicio: an.inicio, colCod: colCod, concs: concs, temValorCol: temValorCol };
     }
 
     function preencherSelectColsConv(sel, an, vazioTxt, valAtual) {
@@ -14018,6 +14107,19 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       renderizarBuscaConv();
       renderizarListaConv();
     });
+    if ($('convParSelect')) $('convParSelect').addEventListener('change', function () {
+      const val = $('convParSelect').value;
+      const concs = concorrentesDisponiveis();
+      if (val === '__all__') {
+        convConcsOcultas = {};
+      } else if (val && val !== '__multi__') {
+        convConcsOcultas = {};
+        concs.forEach(function (c) { if (c !== val) convConcsOcultas[c] = true; });
+      }
+      renderizarChipsConcorrentes();
+      renderizarBuscaConv();
+      renderizarListaConv();
+    });
     if (convBusca) convBusca.addEventListener('input', renderizarBuscaConv);
     if (convLimpar) convLimpar.addEventListener('click', function () { convItensLista = []; renderizarListaConv(); });
     if (convCopiar) convCopiar.addEventListener('click', function () { copiarTextoSimples(textoExportacaoConv()); });
@@ -14047,11 +14149,13 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         if (convArquivoModo === 'cliente') {
           abrirModalConvCli(res);
         } else {
-          const fabGuess = adivinharFab(arq.name);
+          const anTemp = analisarPlanilha(res.planilhas[0].linhas);
+          const fabPorCol = adivinharFabPorColunasPlanilha(anTemp);
+          const fabGuess = fabPorCol || adivinharFab(arq.name) || convFabAtual || (REPS[0] ? REPS[0].id : '');
           convImp = {
-            fabId: fabGuess || convFabAtual || (REPS[0] ? REPS[0].id : ''),
+            fabId: fabGuess,
             planilhas: res.planilhas, p: 0,
-            det: detectarPlanilhaConv(res.planilhas[0].linhas)
+            det: detectarPlanilhaConv(res.planilhas[0].linhas, fabGuess)
           };
           history.pushState({ t: 'convImp' }, '');
           aplicar('convImp');
@@ -14062,11 +14166,19 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       });
     });
 
-    if (convImpFab) convImpFab.addEventListener('change', function () { if (convImp) { convImp.fabId = convImpFab.value; renderizarConvImp(false); } });
+    if (convImpFab) convImpFab.addEventListener('change', function () {
+      if (!convImp) return;
+      convImp.fabId = convImpFab.value;
+      const colRep = colunaDaRepresentadaNaPlanilha(convImp.det.an, convImp.fabId);
+      if (colRep >= 0 && colRep !== convImp.det.colCod) {
+        convImp.det = detectarPlanilhaConv(convImp.planilhas[convImp.p].linhas, convImp.fabId);
+      }
+      renderizarConvImp(false);
+    });
     if (convImpPlan) convImpPlan.addEventListener('change', function () {
       if (!convImp) return;
       convImp.p = parseInt(convImpPlan.value, 10) || 0;
-      convImp.det = detectarPlanilhaConv(convImp.planilhas[convImp.p].linhas);
+      convImp.det = detectarPlanilhaConv(convImp.planilhas[convImp.p].linhas, convImp.fabId);
       renderizarConvImp(false);
     });
     if ($('convImpMenos')) $('convImpMenos').addEventListener('click', function () {
@@ -14085,7 +14197,19 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       convImp.det.inicio = Math.max(0, (parseInt(convImpLinha.value, 10) || 1) - 1);
       renderizarConvImp(false);
     });
-    if (convImpCod) convImpCod.addEventListener('change', function () { if (convImp) { convImp.det.colCod = parseInt(convImpCod.value, 10); renderizarConvImp(false); } });
+    if (convImpCod) convImpCod.addEventListener('change', function () {
+      if (!convImp) return;
+      const novoCod = parseInt(convImpCod.value, 10);
+      const antCod = convImp.det.colCod;
+      convImp.det.colCod = novoCod;
+      // Remove a nova coluna da fábrica da lista de concorrentes e, se a antiga era válida, coloca como concorrente
+      convImp.det.concs = convImp.det.concs.filter(function (cc) { return cc.col !== novoCod; });
+      if (antCod >= 0 && antCod !== novoCod && !ehColunaPrecoOuIgnoradaConv(convImp.det.an.colunas[antCod], true)) {
+        const titAnt = (convImp.det.an.colunas[antCod] && convImp.det.an.colunas[antCod].titulo) || ('Concorrente ' + (convImp.det.concs.length + 1));
+        convImp.det.concs.push({ col: antCod, nome: titAnt.slice(0, 35) });
+      }
+      renderizarConvImp(false);
+    });
     if ($('convImpAddConc')) $('convImpAddConc').addEventListener('click', function () {
       if (!convImp) return;
       convImp.det.concs.push({ col: -1, nome: 'Concorrente ' + (convImp.det.concs.length + 1) });
@@ -14096,20 +14220,44 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       const pl = convImp.planilhas[convImp.p];
       const det = convImp.det;
       const concsVal = det.concs.filter(function (c) { return c.col >= 0 && c.nome.trim(); });
-      const nomesConc = concsVal.map(function (c) { return c.nome.trim(); });
-      const itens = [];
+      const nomesConc = [];
+      concsVal.forEach(function (c) {
+        const nm = c.nome.trim();
+        if (nomesConc.indexOf(nm) === -1) nomesConc.push(nm);
+      });
+      // Agrupa linhas repetidas do mesmo código da nossa fábrica (ex.: 6023 repetido em várias aplicações) e junta códigos distintos de cada concorrente
+      const porCod = {};
+      const ordemCods = [];
       for (let i = det.inicio; i < pl.linhas.length; i++) {
         const l = pl.linhas[i] || [];
         const cod = String(l[det.colCod] == null ? '' : l[det.colCod]).trim();
         if (!cod) continue;
-        const eq = {};
-        let temAlgum = false;
+        const chaveCod = normCodConv(cod) || cod;
+        let reg = porCod[chaveCod];
+        if (!reg) {
+          reg = { cod: cod, eq: {} };
+          porCod[chaveCod] = reg;
+          ordemCods.push(chaveCod);
+        }
         concsVal.forEach(function (cc) {
+          const nm = cc.nome.trim();
           const v = String(l[cc.col] == null ? '' : l[cc.col]).trim();
-          if (v) { eq[cc.nome.trim()] = v; temAlgum = true; }
+          if (!v) return;
+          if (!reg.eq[nm]) {
+            reg.eq[nm] = v;
+          } else {
+            const jaPartes = reg.eq[nm].split(' / ').map(function (x) { return normCodConv(x); });
+            if (jaPartes.indexOf(normCodConv(v)) === -1) {
+              reg.eq[nm] += ' / ' + v;
+            }
+          }
         });
-        if (temAlgum) itens.push({ cod: cod, eq: eq });
       }
+      const itens = [];
+      ordemCods.forEach(function (k) {
+        const reg = porCod[k];
+        if (Object.keys(reg.eq).length > 0) itens.push(reg);
+      });
       if (!itens.length) { avisar('Nenhum item com código de concorrente encontrado.'); return; }
       CONV_TABELAS[convImp.fabId] = { fabId: convImp.fabId, em: Date.now(), concorrentes: nomesConc, itens: itens };
       gravarConvTabelas().then(function () {
