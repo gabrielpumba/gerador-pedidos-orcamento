@@ -2477,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v66 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v67 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -7873,7 +7873,7 @@
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
-      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 66;
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 67;
       const verTelaStr = 'okada-v' + verTelaNum;
 
       try {
@@ -13379,6 +13379,45 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     function tokensCelulaConv(val) {
       return String(val == null ? '' : val).split(/[\/;,\n]+/).map(function (x) { return x.trim(); }).filter(Boolean);
     }
+    // Unifica variações regionais da mesma marca (ex.: "Bortec" e "Bortec - ES" usam a mesma conversão; só o preço muda no pedido)
+    function gruposRepsConv() {
+      return agruparRepsPorBase(REPS).map(function (g) {
+        return { id: g.reps[0].id, nome: g.nome, logo: g.logo, reps: g.reps };
+      });
+    }
+    function idCanonicoConv(fabId) {
+      if (!fabId) return '';
+      const grupos = gruposRepsConv();
+      for (let i = 0; i < grupos.length; i++) {
+        if (grupos[i].reps.some(function (r) { return r.id === fabId; })) return grupos[i].id;
+      }
+      return fabId;
+    }
+    function nomeCanonicoConv(fabId) {
+      const idCan = idCanonicoConv(fabId);
+      const g = gruposRepsConv().find(function (x) { return x.id === idCan; });
+      if (g) return g.nome;
+      const r = repPorId(fabId);
+      return r ? baseNomeRep(r.nome) : fabId;
+    }
+    function obterTabelaConvDaRep(fabId) {
+      if (!fabId) return null;
+      const idCan = idCanonicoConv(fabId);
+      if (CONV_TABELAS[idCan] && Array.isArray(CONV_TABELAS[idCan].itens) && CONV_TABELAS[idCan].itens.length) {
+        return CONV_TABELAS[idCan];
+      }
+      if (CONV_TABELAS[fabId] && Array.isArray(CONV_TABELAS[fabId].itens) && CONV_TABELAS[fabId].itens.length) {
+        return CONV_TABELAS[fabId];
+      }
+      const g = gruposRepsConv().find(function (x) { return x.id === idCan; });
+      if (g) {
+        for (let i = 0; i < g.reps.length; i++) {
+          const tb = CONV_TABELAS[g.reps[i].id];
+          if (tb && Array.isArray(tb.itens) && tb.itens.length) return tb;
+        }
+      }
+      return null;
+    }
     function mostrarConv(t) {
       if (telaConv) {
         telaConv.classList.toggle('aberta', t === 'conversor');
@@ -13404,8 +13443,9 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
 
     function concorrentesDisponiveis() {
       const lista = [], vistos = {};
-      if (convFabAtual && CONV_TABELAS[convFabAtual]) {
-        (CONV_TABELAS[convFabAtual].concorrentes || []).forEach(function (c) {
+      const tbAtual = convFabAtual ? obterTabelaConvDaRep(convFabAtual) : null;
+      if (tbAtual) {
+        (tbAtual.concorrentes || []).forEach(function (c) {
           if (!vistos[c]) { vistos[c] = true; lista.push(c); }
         });
       } else {
@@ -13424,31 +13464,32 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     }
 
     function prepararConversor() {
-      const comConv = Object.keys(CONV_TABELAS).filter(function (fid) { return CONV_TABELAS[fid] && (CONV_TABELAS[fid].itens || []).length > 0; });
+      const grupos = gruposRepsConv();
+      const gruposComConv = grupos.filter(function (g) { return !!obterTabelaConvDaRep(g.id); });
       convFabSelect.textContent = '';
-      if (!comConv.length) {
+      if (!gruposComConv.length) {
         const op0 = document.createElement('option');
         op0.value = '';
         op0.textContent = 'Nenhuma tabela de conversão importada';
         convFabSelect.appendChild(op0);
         convFabAtual = '';
       } else {
-        if (comConv.length > 1) {
+        if (gruposComConv.length > 1) {
           const opAll = document.createElement('option');
           opAll.value = '';
-          opAll.textContent = 'Todas as fábricas (' + comConv.length + ')';
+          opAll.textContent = 'Todas as fábricas (' + gruposComConv.length + ')';
           convFabSelect.appendChild(opAll);
         }
-        REPS.forEach(function (r) {
-          const tb = CONV_TABELAS[r.id];
-          if (!tb || !tb.itens || !tb.itens.length) return;
+        gruposComConv.forEach(function (g) {
+          const tb = obterTabelaConvDaRep(g.id);
           const op = document.createElement('option');
-          op.value = r.id;
-          op.textContent = r.nome + ' · ' + plural(tb.itens.length, 'item', 'itens');
+          op.value = g.id;
+          op.textContent = g.nome + ' · ' + plural(tb.itens.length, 'item', 'itens');
           convFabSelect.appendChild(op);
         });
-        if (convFabAtual && !CONV_TABELAS[convFabAtual]) convFabAtual = '';
-        if (!convFabAtual && comConv.length === 1) convFabAtual = comConv[0];
+        convFabAtual = idCanonicoConv(convFabAtual);
+        if (convFabAtual && !obterTabelaConvDaRep(convFabAtual)) convFabAtual = '';
+        if (!convFabAtual && gruposComConv.length === 1) convFabAtual = gruposComConv[0].id;
         convFabSelect.value = convFabAtual;
       }
       renderizarChipsConcorrentes();
@@ -13466,8 +13507,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       convConcBar.hidden = false;
       convConcChips.textContent = '';
 
-      const repA = convFabAtual ? repPorId(convFabAtual) : null;
-      const nomeA = repA ? repA.nome.toUpperCase() : 'NOSSA FÁBRICA (A)';
+      const nomeA = convFabAtual ? nomeCanonicoConv(convFabAtual).toUpperCase() : 'NOSSA FÁBRICA (A)';
 
       if (convParSelect) {
         convParSelect.textContent = '';
@@ -13520,13 +13560,15 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     function buscarItensConversor(termoRaw) {
       const q = normCodConv(termoRaw);
       if (!q) return [];
-      const fids = convFabAtual ? [convFabAtual] : Object.keys(CONV_TABELAS);
+      const grupos = convFabAtual
+        ? gruposRepsConv().filter(function (g) { return g.id === idCanonicoConv(convFabAtual); })
+        : gruposRepsConv();
       const res = [];
-      fids.forEach(function (fid) {
-        const tb = CONV_TABELAS[fid];
+      grupos.forEach(function (g) {
+        const tb = obterTabelaConvDaRep(g.id);
         if (!tb || !tb.itens) return;
-        const rep = repPorId(fid);
-        const fabNome = rep ? rep.nome : fid;
+        const fid = g.id;
+        const fabNome = g.nome;
         const ativas = concsAtivasLista(tb.concorrentes);
         for (let i = 0; i < tb.itens.length; i++) {
           const it = tb.itens[i];
@@ -13582,7 +13624,8 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         top.appendChild(el('span', 'conv-sug-fab', m.fabNome));
         bt.appendChild(top);
         const badges = el('div', 'conv-badges');
-        const ativas = concsAtivasLista(CONV_TABELAS[m.fabId].concorrentes);
+        const tbM = obterTabelaConvDaRep(m.fabId);
+        const ativas = concsAtivasLista(tbM ? tbM.concorrentes : []);
         ativas.forEach(function (c) {
           const v = m.item.eq && m.item.eq[c];
           if (!v) return;
@@ -13675,7 +13718,8 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
 
         if (!it.naoEncontrado && it.eq) {
           const badges = el('div', 'conv-badges');
-          const concs = (CONV_TABELAS[it.fabId] && CONV_TABELAS[it.fabId].concorrentes) || ativasGlobal;
+          const tbIt = obterTabelaConvDaRep(it.fabId);
+          const concs = (tbIt && tbIt.concorrentes) || ativasGlobal;
           concs.forEach(function (c) {
             if (convConcsOcultas[c]) return;
             const v = it.eq[c];
@@ -13749,24 +13793,25 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     function renderizarConvTabs() {
       convTabsLista.textContent = '';
       let qtd = 0;
-      REPS.forEach(function (r) {
-        const tb = CONV_TABELAS[r.id];
+      gruposRepsConv().forEach(function (g) {
+        const tb = obterTabelaConvDaRep(g.id);
         if (!tb || !tb.itens || !tb.itens.length) return;
         qtd++;
         const li = el('li', 'conv-card');
         const topo = el('div', 'conv-card-topo');
         const info = el('div', '');
-        info.appendChild(el('div', 'conv-card-cod', r.nome));
-        info.appendChild(el('div', 'conv-card-meta', plural(tb.itens.length, 'item', 'itens') + ' · Concorrentes: ' + (tb.concorrentes || []).join(', ')));
+        info.appendChild(el('div', 'conv-card-cod', g.nome));
+        const subDivs = g.reps.length > 1 ? (' (válida para ' + g.reps.map(function (x) { return x.nome; }).join(' e ') + ') · ') : ' · ';
+        info.appendChild(el('div', 'conv-card-meta', plural(tb.itens.length, 'item', 'itens') + subDivs + 'Concorrentes: ' + (tb.concorrentes || []).join(', ')));
         topo.appendChild(info);
         const bts = el('div', 'conv-card-bts');
         const btEx = el('button', 'conv-card-bt perigo');
         btEx.type = 'button'; btEx.title = 'Excluir tabela de conversão';
         btEx.appendChild(ic('lixeira'));
         btEx.addEventListener('click', function () {
-          confirmar({ titulo: 'Excluir tabela de conversão?', texto: 'A tabela De-Para de ' + r.nome + ' será removida.', sim: 'Excluir', nao: 'Cancelar', perigo: true }).then(function (ok) {
+          confirmar({ titulo: 'Excluir tabela de conversão?', texto: 'A tabela De-Para de ' + g.nome + ' será removida.', sim: 'Excluir', nao: 'Cancelar', perigo: true }).then(function (ok) {
             if (!ok) return;
-            delete CONV_TABELAS[r.id];
+            g.reps.forEach(function (r) { delete CONV_TABELAS[r.id]; });
             gravarConvTabelas().then(function () {
               avisar('Tabela de conversão excluída.');
               renderizarConvTabs();
@@ -13921,12 +13966,14 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       if (!convImp) return;
       if (tudo) {
         convImpFab.textContent = '';
-        REPS.forEach(function (r) {
+        const grupos = gruposRepsConv();
+        grupos.forEach(function (g) {
           const o = document.createElement('option');
-          o.value = r.id; o.textContent = r.nome;
+          o.value = g.id;
+          o.textContent = g.reps.length > 1 ? (g.nome + ' (vale para ' + g.reps.map(function (x) { return x.nome; }).join(' e ') + ')') : g.nome;
           convImpFab.appendChild(o);
         });
-        convImpFab.value = convImp.fabId || (REPS[0] ? REPS[0].id : '');
+        convImpFab.value = idCanonicoConv(convImp.fabId) || (grupos[0] ? grupos[0].id : '');
         convImp.fabId = convImpFab.value;
 
         convImpPlanBloco.hidden = convImp.planilhas.length < 2;
@@ -14259,9 +14306,12 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         if (Object.keys(reg.eq).length > 0) itens.push(reg);
       });
       if (!itens.length) { avisar('Nenhum item com código de concorrente encontrado.'); return; }
-      CONV_TABELAS[convImp.fabId] = { fabId: convImp.fabId, em: Date.now(), concorrentes: nomesConc, itens: itens };
+      const idCan = idCanonicoConv(convImp.fabId);
+      const g = gruposRepsConv().find(function (x) { return x.id === idCan; });
+      if (g) g.reps.forEach(function (r) { delete CONV_TABELAS[r.id]; });
+      CONV_TABELAS[idCan] = { fabId: idCan, em: Date.now(), concorrentes: nomesConc, itens: itens };
       gravarConvTabelas().then(function () {
-        convFabAtual = convImp.fabId;
+        convFabAtual = idCan;
         convImp = null;
         avisar('Tabela de conversão salva (' + plural(itens.length, 'item', 'itens') + ')!');
         history.back();
@@ -14366,9 +14416,9 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         }
       }
 
-      // 4) Se houver Tabela de Conversão (De-Para) desta fábrica e o cliente mandou código do concorrente
-      if (representada && CONV_TABELAS[representada.id] && Array.isArray(CONV_TABELAS[representada.id].itens)) {
-        const tbConv = CONV_TABELAS[representada.id];
+      // 4) Se houver Tabela de Conversão (De-Para) desta fábrica (ou da marca base, ex.: Bortec para Bortec e Bortec - ES) e o cliente mandou código do concorrente
+      const tbConv = representada ? obterTabelaConvDaRep(representada.id) : null;
+      if (tbConv && Array.isArray(tbConv.itens)) {
         for (let i = 0; i < tbConv.itens.length; i++) {
           const itC = tbConv.itens[i];
           if (!itC.eq) continue;
