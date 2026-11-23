@@ -2477,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v64 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v65 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -3291,7 +3291,7 @@
           <div class="conv-conc-chips" id="convConcChips"></div>
         </div>
         <div class="conv-busca-wrap">
-          <input class="conv-campo" id="convBusca" type="search" placeholder="Digite o código do concorrente, nosso código ou descrição..." autocomplete="off" spellcheck="false">
+          <input class="conv-campo" id="convBusca" type="search" placeholder="Digite o código da nossa fábrica ou da concorrente..." autocomplete="off" spellcheck="false">
         </div>
         <ul class="conv-sug" id="convSug" hidden></ul>
       </div>
@@ -3359,12 +3359,8 @@
         <select class="campo" id="convImpCod"></select>
       </div>
       <div class="fcampo">
-        <label class="rotulo" for="convImpDesc">Qual coluna é a DESCRIÇÃO? (opcional)</label>
-        <select class="campo" id="convImpDesc"></select>
-      </div>
-      <div class="fcampo">
         <div class="imp-preco-cab">
-          <label class="rotulo">Colunas das CONCORRENTES</label>
+          <label class="rotulo">Colunas dos CÓDIGOS DAS CONCORRENTES</label>
           <button class="bt-add-preco" id="convImpAddConc" type="button"><svg class="ic" aria-hidden="true"><use href="#i-mais"/></svg><span>Adicionar concorrente</span></button>
         </div>
         <div id="convImpConcsLista" style="display: grid; gap: 8px;"></div>
@@ -7874,7 +7870,7 @@
     function checarAtualizacaoRemota(manual) {
       const infoVer = $('infoVersaoApp');
       const btUpdTopo = $('btAtualizarTopo');
-      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 64;
+      const verTelaNum = extrairNumVersao(infoVer ? infoVer.textContent : '') || 65;
       const verTelaStr = 'okada-v' + verTelaNum;
 
       try {
@@ -13489,8 +13485,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
 
     function buscarItensConversor(termoRaw) {
       const q = normCodConv(termoRaw);
-      const qTxt = normalizar(termoRaw || '').trim();
-      if (!q && qTxt.length < 2) return [];
+      if (!q) return [];
       const fids = convFabAtual ? [convFabAtual] : Object.keys(CONV_TABELAS);
       const res = [];
       fids.forEach(function (fid) {
@@ -13503,8 +13498,8 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
           const it = tb.itens[i];
           let pts = 0;
           let matchConc = '';
-          if (q && normCodConv(it.cod) === q) pts = 100;
-          else if (q && normCodConv(it.cod).indexOf(q) === 0) pts = 70;
+          if (normCodConv(it.cod) === q) pts = 100;
+          else if (normCodConv(it.cod).indexOf(q) === 0) pts = 70;
           for (let j = 0; j < ativas.length; j++) {
             const c = ativas[j];
             const val = it.eq && it.eq[c];
@@ -13512,12 +13507,11 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
             const toks = tokensCelulaConv(val);
             for (let k = 0; k < toks.length; k++) {
               const nt = normCodConv(toks[k]);
-              if (q && nt === q) { pts = Math.max(pts, 95); matchConc = c; break; }
-              if (q && nt.indexOf(q) !== -1) { pts = Math.max(pts, 65); if (!matchConc) matchConc = c; }
+              if (nt === q) { pts = Math.max(pts, 95); matchConc = c; break; }
+              if (nt.indexOf(q) !== -1) { pts = Math.max(pts, 65); if (!matchConc) matchConc = c; }
             }
           }
-          if (!pts && qTxt.length >= 2 && normalizar(it.desc || '').indexOf(qTxt) !== -1) pts = 40;
-          if (!pts && q && normCodConv(it.cod).indexOf(q) !== -1) pts = 50;
+          if (!pts && normCodConv(it.cod).indexOf(q) !== -1) pts = 50;
           if (pts > 0) {
             res.push({ pts: pts, fabId: fid, fabNome: fabNome, item: it, matchConc: matchConc });
             if (res.length >= 40) break;
@@ -13540,7 +13534,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       if (!achados.length) {
         convSug.hidden = false;
         const li = document.createElement('li');
-        li.appendChild(el('div', 'conv-vazio', 'Nenhum item encontrado para "' + val + '".'));
+        li.appendChild(el('div', 'conv-vazio', 'Nenhum código encontrado para "' + val + '".'));
         convSug.appendChild(li);
         return;
       }
@@ -13553,7 +13547,6 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         top.appendChild(el('strong', '', m.item.cod));
         top.appendChild(el('span', 'conv-sug-fab', m.fabNome));
         bt.appendChild(top);
-        if (m.item.desc) bt.appendChild(el('div', 'conv-sug-desc', m.item.desc));
         const badges = el('div', 'conv-badges');
         const ativas = concsAtivasLista(CONV_TABELAS[m.fabId].concorrentes);
         ativas.forEach(function (c) {
@@ -13568,7 +13561,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         bt.addEventListener('click', function () {
           adicionarItemConv({
             fabId: m.fabId, fabNome: m.fabNome,
-            cod: m.item.cod, desc: m.item.desc, eq: m.item.eq,
+            cod: m.item.cod, eq: m.item.eq,
             qtd: '', buscaOrig: val, naoEncontrado: false
           });
           convBusca.value = '';
@@ -13625,7 +13618,6 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         if (it.qtd) metaPartes.push('Qtd: ' + it.qtd);
         if (it.buscaOrig && !it.naoEncontrado) metaPartes.push('Busca: ' + it.buscaOrig);
         if (metaPartes.length) esq.appendChild(el('div', 'conv-card-meta', metaPartes.join(' · ')));
-        if (it.desc) esq.appendChild(el('div', 'conv-sug-desc', it.desc));
         topo.appendChild(esq);
 
         const bts = el('div', 'conv-card-bts');
@@ -13684,7 +13676,7 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
           const v = it.eq && it.eq[c];
           return v ? (c + ': ' + v) : '';
         }).filter(Boolean).join(' | ');
-        linhas.push(it.cod + (it.qtd ? ' (Qtd: ' + it.qtd + ')' : '') + (it.desc ? ' — ' + it.desc : '') + (eqTxt ? ' [' + eqTxt + ']' : ''));
+        linhas.push(it.cod + (it.qtd ? ' (Qtd: ' + it.qtd + ')' : '') + (eqTxt ? ' [' + eqTxt + ']' : ''));
       });
       return linhas.join('\n');
     }
@@ -13692,13 +13684,12 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
     function exportarCsvConv() {
       const ativas = concsAtivasLista();
       function escCsv(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
-      const cab = ['Fábrica', 'Nosso Código', 'Descrição', 'Qtd', 'Código Buscado'].concat(ativas);
+      const cab = ['Fábrica', 'Nosso Código', 'Qtd', 'Código Buscado'].concat(ativas);
       const linhas = [cab.map(escCsv).join(';')];
       convItensLista.forEach(function (it) {
         const row = [
           it.fabNome || '',
           it.naoEncontrado ? 'NÃO ENCONTRADO' : it.cod,
-          it.desc || '',
           it.qtd || '',
           it.buscaOrig || ''
         ];
@@ -13760,22 +13751,43 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       }
     }
 
+    const RE_COLUNA_NAO_CONCORRENTE = /\b(pre[cç]o|valor|vlr|r\$|vista|prazo|l[ií]quid|brut|unit|total|custo|descri[cç]|produto|aplic|nome|ipi|icms|st|ncm|cfop|cest|ean|gtin|barra|unid|un|emb|embalagem|caixa|cx|mult|m[uú]lt|peso|estq|estoque|qtd|qtde|quant|data|obs|p[aá]g|moeda)\b/i;
+
+    function ehColunaPrecoOuIgnoradaConv(cInfo) {
+      if (!cInfo || !cInfo.n) return true;
+      if (cInfo.papel === 'preco' || cInfo.papel === 'desc') return true;
+      const tit = normalizar(cInfo.titulo || '');
+      if (RE_COLUNA_NAO_CONCORRENTE.test(tit) || /r\$/.test(tit)) return true;
+      // Colunas numéricas com casas decimais são preços/impostos, não códigos de peças
+      if (cInfo.parteDec >= 0.25 && cInfo.parteNum >= 0.6) return true;
+      // Colunas de texto longo são descrições/aplicações, não códigos
+      if (cInfo.parteTexto >= 0.6 && cInfo.medio > 22) return true;
+      // Amostras com "R$" são preços
+      if (Array.isArray(cInfo.amostra) && cInfo.amostra.some(function (a) { return /R\$|^\d+[,.]\d{2}$/.test(String(a || '').trim()); }) && cInfo.parteDec >= 0.15) return true;
+      return false;
+    }
+
     function detectarPlanilhaConv(linhas) {
       const an = analisarPlanilha(linhas);
-      let colCod = -1, colDesc = -1;
+      let colCod = -1;
       an.colunas.forEach(function (c, k) {
         if (c.papel === 'cod' && colCod < 0) colCod = k;
-        else if (c.papel === 'desc' && colDesc < 0) colDesc = k;
       });
+      if (colCod < 0) {
+        for (let c = 0; c < an.ncols; c++) {
+          if (!ehColunaPrecoOuIgnoradaConv(an.colunas[c])) { colCod = c; break; }
+        }
+      }
       if (colCod < 0 && an.ncols > 0) colCod = 0;
       const concs = [];
       for (let c = 0; c < an.ncols; c++) {
-        if (c === colCod || c === colDesc) continue;
-        const tit = (an.colunas[c] && an.colunas[c].titulo) || ('Concorrente ' + (concs.length + 1));
-        if (!an.colunas[c] || an.colunas[c].n === 0) continue;
+        if (c === colCod) continue;
+        const colInfo = an.colunas[c];
+        if (ehColunaPrecoOuIgnoradaConv(colInfo)) continue;
+        const tit = (colInfo && colInfo.titulo) || ('Concorrente ' + (concs.length + 1));
         concs.push({ col: c, nome: tit.slice(0, 35) });
       }
-      return { an: an, inicio: an.inicio, colCod: colCod, colDesc: colDesc, concs: concs };
+      return { an: an, inicio: an.inicio, colCod: colCod, concs: concs };
     }
 
     function preencherSelectColsConv(sel, an, vazioTxt, valAtual) {
@@ -13843,7 +13855,6 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       const det = convImp.det;
       convImpLinha.value = String(det.inicio + 1);
       preencherSelectColsConv(convImpCod, det.an, null, det.colCod);
-      preencherSelectColsConv(convImpDesc, det.an, 'Não usar', det.colDesc);
 
       convImpConcsLista.textContent = '';
       det.concs.forEach(function (cc, idx) {
@@ -13874,7 +13885,6 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
 
       const dest = {};
       if (det.colCod >= 0) dest[det.colCod] = 'p-cod';
-      if (det.colDesc >= 0) dest[det.colDesc] = 'p-desc';
       det.concs.forEach(function (cc) { if (cc.col >= 0) dest[cc.col] = 'p-preco'; });
       desenharPreviaSimples(convImpPrev, pl.linhas, det.inicio, dest);
 
@@ -14076,7 +14086,6 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
       renderizarConvImp(false);
     });
     if (convImpCod) convImpCod.addEventListener('change', function () { if (convImp) { convImp.det.colCod = parseInt(convImpCod.value, 10); renderizarConvImp(false); } });
-    if (convImpDesc) convImpDesc.addEventListener('change', function () { if (convImp) { convImp.det.colDesc = parseInt(convImpDesc.value, 10); renderizarConvImp(false); } });
     if ($('convImpAddConc')) $('convImpAddConc').addEventListener('click', function () {
       if (!convImp) return;
       convImp.det.concs.push({ col: -1, nome: 'Concorrente ' + (convImp.det.concs.length + 1) });
@@ -14093,14 +14102,13 @@ const PDF_FONTES = {"m":{"nome":"PlusJakartaSans-Medium","peso":500,"asc":1038,"
         const l = pl.linhas[i] || [];
         const cod = String(l[det.colCod] == null ? '' : l[det.colCod]).trim();
         if (!cod) continue;
-        const desc = det.colDesc >= 0 ? String(l[det.colDesc] == null ? '' : l[det.colDesc]).trim() : '';
         const eq = {};
         let temAlgum = false;
         concsVal.forEach(function (cc) {
           const v = String(l[cc.col] == null ? '' : l[cc.col]).trim();
           if (v) { eq[cc.nome.trim()] = v; temAlgum = true; }
         });
-        if (temAlgum) itens.push({ cod: cod, desc: desc, eq: eq });
+        if (temAlgum) itens.push({ cod: cod, eq: eq });
       }
       if (!itens.length) { avisar('Nenhum item com código de concorrente encontrado.'); return; }
       CONV_TABELAS[convImp.fabId] = { fabId: convImp.fabId, em: Date.now(), concorrentes: nomesConc, itens: itens };
