@@ -2477,7 +2477,7 @@
             <svg class="ic" style="width: 20px; height: 20px; fill: #82102E;" aria-hidden="true"><use href="#i-baixar"/></svg>
             <span style="color: #82102E; font-weight: 800; letter-spacing: 0.02em;">GERAR COMPILAÇÃO (BETA TESTER)</span>
           </button>
-          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v69 · Sincronizado</div>
+          <div id="infoVersaoApp" title="Clique para verificar se há atualização na nuvem" style="margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); cursor: pointer; user-select: none;">Versão okada-v70 · Sincronizado</div>
         </div>
       </section>
     </div>
@@ -8485,6 +8485,31 @@
 
     const RE_DIVISOR_SECAO = /^(alfa romeo|audi|bmw|byd|chery|chevrolet|chrysler|citro[eë]n|dodge|fiat|ford|geely|gwm|haval|honda|hyundai|infiniti|jac|jeep|kia|land rover|lifan|lincoln|mahindra|mazda|mercedes|mini|mitsubishi|nissan|peugeot|porsche|ram|renault|seat|smart|ssangyong|subaru|suzuki|toyota|troller|volkswagen|volvo|carrier|case|caterpillar|daf|denso|iveco|jcb|john deere|konvecta|massey|new holland|randon|scania|thermo king|valtra|xcmg|linha|montadora|marca|grupo|categoria|ve[ií]culo)($|\b)/i;
 
+    // Desmembra códigos com variações de cores (ex: LS106-AM/AZ/CRI/VD/VM -> LS106-AM, LS106-AZ, ...) mantendo o mesmo preço
+    function desmembrarCodigosCores(cod) {
+      const s = String(cod || '').trim();
+      if (!s) return [];
+      let m = s.match(/^(.+?)\s*c\/\s*((?:AM|AZ|CRI|VD|VM|FM|BC|PR)(?:\/(?:AM|AZ|CRI|VD|VM|FM|BC|PR))+)$/i);
+      if (m) {
+        const prefix = m[1].trim();
+        return m[2].split('/').map(function (c) { return prefix + ' c/ ' + c.trim(); });
+      }
+      m = s.match(/^(LS\d+-[A-Z]+)\s*c\/((?:AM|AZ|CRI|VD|VM)(?:-(?:AM|AZ|CRI|VD|VM))+)(-.+)$/i);
+      if (m) {
+        return m[2].split('-').map(function (c) { return m[1] + ' c/ ' + c.trim() + m[3]; });
+      }
+      m = s.match(/^(LS\d+-(?:AC|PS)-)(VM-AM\s*\/\s*VM-CRI\s*\/\s*TRIC)$/i);
+      if (m) {
+        return ['VM-AM', 'VM-CRI', 'TRIC'].map(function (c) { return m[1] + c; });
+      }
+      m = s.match(/^(.+-)((?:AM|AZ|CRI|VD|VM|FM|BIC|TRI|TRIC)(?:\/(?:AM|AZ|CRI|VD|VM|FM|BIC|TRI|TRIC))+)$/i);
+      if (m) {
+        const prefix = m[1];
+        return m[2].split('/').map(function (c) { return prefix + c.trim(); });
+      }
+      return [s];
+    }
+
     // Monta a tabela final: linhas [código, "", descrição, preço em milésimos, [preço0, preço1, ...] opcional]
     function montarTabelaImportada(linhas, inicio, mapa) {
       const saida = [], vistos = {}, porCodigo = {}, itensSemPreco = [];
@@ -8503,8 +8528,8 @@
       for (let i = inicio; i < linhas.length; i++) {
         const l = linhas[i];
         if (linhaVazia(l)) continue;
-        const cod = textoCelula(l[mapa.cod], 40);
-        if (!cod) { ignoradas++; continue; }
+        const codBruto = textoCelula(l[mapa.cod], 40);
+        if (!codBruto) { ignoradas++; continue; }
         const desc = mapa.desc >= 0 ? textoCelula(l[mapa.desc], 120) : '';
         let cent = null, listaCents = null;
         if (colsPreco.length === 1) {
@@ -8520,22 +8545,28 @@
           for (let k = 0; k < l.length; k++) {
             if (l[k] !== null && l[k] !== undefined && String(l[k]).trim() !== '') celulasCheias++;
           }
-          const ehDivisor = (mapa.desc >= 0 && !desc) || celulasCheias <= 1 || RE_DIVISOR_SECAO.test(normalizar(cod));
+          const ehDivisor = (mapa.desc >= 0 && !desc) || celulasCheias <= 1 || RE_DIVISOR_SECAO.test(normalizar(codBruto));
           if (ehDivisor) continue;
         }
-        const chave = cod + '\u0001' + desc + '\u0001' + (listaCents ? listaCents.join('|') : cent);
-        if (vistos[chave]) { duplicadas++; continue; }           // linha igualzinha a outra: só entra uma vez
-        vistos[chave] = 1;
+        const codigosExpandidos = desmembrarCodigosCores(codBruto);
+        for (let cx = 0; cx < codigosExpandidos.length; cx++) {
+          const cod = texto(codigosExpandidos[cx], 40);
+          if (!cod) continue;
+          const chave = cod + '\u0001' + desc + '\u0001' + (listaCents ? listaCents.join('|') : cent);
+          if (vistos[chave]) { duplicadas++; continue; }           // linha igualzinha a outra: só entra uma vez
+          vistos[chave] = 1;
 
-        const ocorrencia = { linha: i + 1, cod: cod, desc: desc, cent: cent, listaCents: listaCents };
-        if (!porCodigo[cod]) porCodigo[cod] = [ocorrencia];
-        else porCodigo[cod].push(ocorrencia);
+          const ocorrencia = { linha: i + 1, cod: cod, desc: desc, cent: cent, listaCents: listaCents };
+          if (!porCodigo[cod]) porCodigo[cod] = [ocorrencia];
+          else porCodigo[cod].push(ocorrencia);
 
-        if (cent === null) itensSemPreco.push({ linha: i + 1, cod: cod, desc: desc });
+          if (cent === null) itensSemPreco.push({ linha: i + 1, cod: cod, desc: desc });
 
-        if (listaCents) saida.push([cod, '', desc, cent, listaCents]);
-        else saida.push([cod, '', desc, cent]);
-        if (saida.length >= 100000) { cortada = true; break; }
+          if (listaCents) saida.push([cod, '', desc, cent, listaCents]);
+          else saida.push([cod, '', desc, cent]);
+          if (saida.length >= 100000) { cortada = true; break; }
+        }
+        if (cortada) break;
       }
 
       const repetidos = [];
@@ -9510,8 +9541,8 @@
       for (let i = 0; i < t.linhas.length && linhas.length < 100000; i++) {
         const r = t.linhas[i];
         if (!Array.isArray(r)) continue;
-        const cod = texto(r[0], 40);
-        if (!cod) continue;
+        const codBruto = texto(r[0], 40);
+        if (!codBruto) continue;
         const p = r[3];
         const preco = typeof p === 'number' && isFinite(p) && p > 0 && p * k <= 999999999 ? Math.round(p * k) : null;
         let multi = null;
@@ -9521,9 +9552,16 @@
           });
           if (multi.length > maxMulti) maxMulti = multi.length;
         }
-        if (preco === null && (!multi || multi.every(function (v) { return v === null; }))) sem++;
-        if (multi) linhas.push([cod, '', texto(r[2], 120), preco, multi]);
-        else linhas.push([cod, '', texto(r[2], 120), preco]);
+        const desc = texto(r[2], 120);
+        const ehSemPreco = (preco === null && (!multi || multi.every(function (v) { return v === null; })));
+        const cods = desmembrarCodigosCores(codBruto);
+        for (let cx = 0; cx < cods.length && linhas.length < 100000; cx++) {
+          const cod = texto(cods[cx], 40);
+          if (!cod) continue;
+          if (ehSemPreco) sem++;
+          if (multi) linhas.push([cod, '', desc, preco, multi]);
+          else linhas.push([cod, '', desc, preco]);
+        }
       }
       if (!linhas.length) return null;
       const arq = texto(t.arq, 80);
